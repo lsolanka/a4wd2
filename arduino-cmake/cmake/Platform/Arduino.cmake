@@ -1177,9 +1177,11 @@ function(setup_arduino_bootloader_upload TARGET_NAME BOARD_ID PORT AVRDUDE_FLAGS
     list(APPEND AVRDUDE_ARGS "-Uflash:w:${TARGET_PATH}.hex")
     list(APPEND AVRDUDE_ARGS "-Ueeprom:w:${TARGET_PATH}.eep:i")
     add_custom_target(${UPLOAD_TARGET}
-                     ${ARDUINO_AVRDUDE_PROGRAM} 
-                     ${AVRDUDE_ARGS}
-                     DEPENDS ${TARGET_NAME})
+        COMMAND stty -F ${PORT} 1200
+        COMMAND sleep 1
+        COMMAND ${ARDUINO_AVRDUDE_PROGRAM} ${AVRDUDE_ARGS}
+        COMMAND stty -F ${PORT} 57600
+        DEPENDS ${TARGET_NAME})
 
     # Global upload target
     if(NOT TARGET upload)
