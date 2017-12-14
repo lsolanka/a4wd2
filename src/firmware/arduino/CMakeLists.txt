@@ -11,7 +11,7 @@ set(ARDUINO_DEFAULT_BOARD micro)
 set(ARDUINO_DEFAULT_PORT /dev/ttyACM0)
 
 generate_arduino_firmware(srf08_serial
-    SKETCH "src/srf08_serial.cpp"
+    SKETCH "srf08_serial.cpp"
     PORT  /dev/ttyACM0
     SERIAL picocom @SERIAL_PORT@
     BOARD micro

@@ -28,7 +28,7 @@ void setup()
         Wire.endTransmission();
     }
 
-    Serial.begin(9600);
+    Serial.begin(57600);
 }
 
 void triggerRanging(uint8_t address)
@@ -43,7 +43,7 @@ void triggerRanging(uint8_t address)
     
 
 /** Get a range reading from a ranger at the specified address. **/
-int readRange(uint8_t address)
+int read_range(uint8_t address)
 {
     uint8_t highByte = 0x00;
     uint8_t lowByte = 0x00;
@@ -56,7 +56,7 @@ int readRange(uint8_t address)
     Wire.write(RANGEBYTE);
     Wire.endTransmission();
 
-    Wire.requestFrom(address, 2);
+    Wire.requestFrom((int)address, 2);
     while (Wire.available() < 2);
     highByte = Wire.read();
     lowByte = Wire.read();
@@ -67,37 +67,45 @@ int readRange(uint8_t address)
 }
 
 /** Get light sensor reading from the sensor at the specified address **/
-int getLight(uint8_t address)
+int read_light(uint8_t address)
 {
   
     Wire.beginTransmission(address);
     Wire.write(LIGHTBYTE);
     Wire.endTransmission();
 
-    Wire.requestFrom(address, 1);
+    Wire.requestFrom((int)address, 1);
     while (Wire.available() < 0);
     return Wire.read();
 }
 
+void send_all_readings(uint8_t address, uint16_t range, uint16_t light)
+{
+    Serial.print("\"0x");
+    Serial.print(address, HEX);
+    Serial.print("\" : { ");
+    Serial.print("\"r\": ");
+    Serial.print(range, DEC);
+    Serial.print(",");
+    Serial.print("\"l\": ");
+    Serial.print(light, DEC);
+    Serial.print("}");
+}
+
 void loop()
 {
-    //triggerRanging(0x00);
     for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
     { 
         uint8_t sensor_address = SRF_BASE_ADDRESS + sensor_idx;
 
-        int rangeData = readRange(sensor_address);
-        Serial.print("sensor addr = ");
-        Serial.print(sensor_address, HEX);
-        Serial.print(";Range = ");
-        Serial.print(rangeData, DEC);
+        Serial.print("{ \"son\" : { ");
 
-        int lightData = getLight(sensor_address);
-        Serial.print(";light = ");
-        Serial.print(lightData, DEC);
-        Serial.print("    ");
+        int range = read_range(sensor_address);
+        int light = read_light(sensor_address);
+        send_all_readings(sensor_address, range, light);
+
+        Serial.println("} }");
     }
-    Serial.println();
 }
 
 //// I2C address is double of what is the address on TWI
