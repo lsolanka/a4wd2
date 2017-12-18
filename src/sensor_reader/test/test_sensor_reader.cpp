@@ -5,7 +5,6 @@
 
 #include <sensor_reader/sensor_reader.hpp>
 #include <sensor_reader/srf08.hpp>
-#include <sensor_reader/link_interfaces.hpp>
 
 using json = nlohmann::json;
 using a4wd2::sensor_reader::sensor_reader;
