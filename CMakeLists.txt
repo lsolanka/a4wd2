@@ -13,7 +13,7 @@ option(BUILD_TESTS "Build unit tests" OFF)
 
 hunter_add_package(nlohmann_json)
 
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system log)
 include_directories(${Boost_INCLUDE_DIRS})
 
 if(BUILD_TESTS)

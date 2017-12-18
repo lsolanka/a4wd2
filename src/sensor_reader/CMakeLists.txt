@@ -10,6 +10,7 @@ target_include_directories(sensor_reader PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(sensor_reader nlohmann_json ${Boost_LIBRARIES})
+target_compile_definitions(sensor_reader PUBLIC BOOST_LOG_DYN_LINK)
 
 if(BUILD_TESTS)
     add_gtest(test_sensor_reader test/test_sensor_reader.cpp)

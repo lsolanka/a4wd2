@@ -34,7 +34,7 @@ class srf08 : public sensor
 
   private:
     std::function<void (const data_t& data)> m_on_data;
-
+    int m_address;
 };
 
 void from_json(const nlohmann::json& j, srf08::data_t& data);
