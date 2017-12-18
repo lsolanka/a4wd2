@@ -81,9 +81,10 @@ int read_light(uint8_t address)
 
 void send_all_readings(uint8_t address, uint16_t range, uint16_t light)
 {
-    Serial.print("\"0x");
-    Serial.print(address, HEX);
-    Serial.print("\" : { ");
+    Serial.print("{ ");
+    Serial.print("\"a\": ");
+    Serial.print(address, DEC);
+    Serial.print(",");
     Serial.print("\"r\": ");
     Serial.print(range, DEC);
     Serial.print(",");
@@ -98,13 +99,13 @@ void loop()
     { 
         uint8_t sensor_address = SRF_BASE_ADDRESS + sensor_idx;
 
-        Serial.print("{ \"son\" : { ");
+        Serial.print("{ \"srf08\" :");
 
         int range = read_range(sensor_address);
         int light = read_light(sensor_address);
         send_all_readings(sensor_address, range, light);
 
-        Serial.println("} }");
+        Serial.println("}");
     }
 }
 
