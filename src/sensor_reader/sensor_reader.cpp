@@ -11,14 +11,13 @@ using json = nlohmann::json;
 namespace a4wd2::sensor_reader
 {
 
-template<typename link_ifc_t>
-void sensor_reader<link_ifc_t>::read_all()
+void sensor_reader::read_all()
 {
-    while (m_link_interface.good() && !m_link_interface.eof())
+    while (m_input_stream.good() && !m_input_stream.eof())
     {
         std::string line;
-        std::getline(m_link_interface, line);
-        if (!m_link_interface.good() && line.size() == 0)
+        std::getline(m_input_stream, line);
+        if (!m_input_stream.good() && line.size() == 0)
         {
             break;
         }
@@ -57,6 +56,4 @@ void sensor_reader<link_ifc_t>::read_all()
     }
 }
 
-template class sensor_reader<std::stringstream>;
-
-}
+} // namespace a4wd2::sensor_reader

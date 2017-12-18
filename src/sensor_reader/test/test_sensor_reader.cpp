@@ -42,7 +42,7 @@ TEST(sensor_reader, test_register_sensor)
     {
         ss << val << '\n';
     }
-    sensor_reader<std::stringstream> reader{ss};
+    sensor_reader reader{ss};
 
     std::vector<sensors::srf08::data_t> data_vec_0x70;
     reader.add_sensor<sensors::srf08>(0x70, [&] (const auto& data)
@@ -83,7 +83,7 @@ TEST(sensor_reader, two_sensors_same_address)
     // Fill in the string passed to reader
     std::stringstream ss;
     ss << test_values << '\n';
-    sensor_reader<std::stringstream> reader{ss};
+    sensor_reader reader{ss};
 
     std::vector<sensors::srf08::data_t> data_vec;
     reader.add_sensor<sensors::srf08>(0x70, [&] (const auto& data)
@@ -116,7 +116,7 @@ TEST(sensor_reader, top_level_no_object)
 
     std::stringstream ss;
     ss << test_values << '\n';
-    sensor_reader<std::stringstream> reader{ss};
+    sensor_reader reader{ss};
 
     std::vector<sensors::srf08::data_t> data_vec;
     reader.add_sensor<sensors::srf08>(0x70, [&] (const auto& data)
@@ -133,7 +133,7 @@ TEST(sensor_reader, top_level_no_object)
 TEST(sensor_reader, test_invalid_json)
 {
     std::stringstream ss("invalid json");
-    sensor_reader<std::stringstream> reader{ss};
+    sensor_reader reader{ss};
 
     std::vector<sensors::srf08::data_t> data_vec;
     auto on_data = [&] (const auto& data)
