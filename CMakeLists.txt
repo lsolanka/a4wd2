@@ -6,6 +6,10 @@ HunterGate(
     SHA1 "243001e1b835fe4d5bc3b5c41b7e633b5be033c5"
 )
 
+# Set up ROS correctly so that we don't have to use catkin_make
+# Still requires sourcing the setup.bash script
+set(CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
+
 project(a4wd2 VERSION 0.0.1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -14,6 +18,8 @@ option(BUILD_TESTS "Build unit tests" OFF)
 hunter_add_package(nlohmann_json)
 
 find_package(Boost REQUIRED COMPONENTS system log)
+find_package(catkin REQUIRED COMPONENTS sensor_msgs roscpp)
+
 include_directories(${Boost_INCLUDE_DIRS})
 
 if(BUILD_TESTS)
@@ -28,4 +34,7 @@ if(BUILD_TESTS)
     endmacro()
 endif()
 
+catkin_package()
+
 add_subdirectory(src/sensor_reader)
+add_subdirectory(src/sensor_publisher)
