@@ -39,5 +39,7 @@ class srf08 : public sensor
 
 void from_json(const nlohmann::json& j, srf08::data_t& data);
 
+std::ostream& operator<<(std::ostream& stream, const srf08::data_t& data);
+
 
 } // namespace a4wd2::sensor_reader::sensors

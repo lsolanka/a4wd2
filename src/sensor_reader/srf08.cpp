@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/io/ios_state.hpp>
 #include <sensor_reader/srf08.hpp>
 
 namespace a4wd2::sensor_reader::sensors
@@ -32,4 +33,13 @@ bool srf08::parse(const nlohmann::json& j)
     }
 }
 
+std::ostream& operator<<(std::ostream& stream, const srf08::data_t& data)
+{
+    boost::io::ios_flags_saver ifs(stream);
+
+    stream << "a: " << std::showbase << std::hex << +data.address << ", "
+              "r: " << std::dec << data.range << ", "
+              "l: " << data.light;
+    return stream;
+}
 }
