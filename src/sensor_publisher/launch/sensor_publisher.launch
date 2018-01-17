@@ -1,0 +1,13 @@
+<launch>
+    <node pkg="a4wd2" name="sensor_publisher" type="sensor_publisher"
+          required="true"
+          args="/dev/ttyACM0"
+          output="screen"
+    />
+
+    <node pkg="tf2_ros" name="range_fl_broadcaster" type="static_transform_publisher"
+            args="-0.06 0.13 0 1.570796 0 0 robot range_fl" />
+
+    <node pkg="tf2_ros" name="range_fr_broadcaster" type="static_transform_publisher"
+            args="0.06 0.13 0 1.570796 0 0 robot range_fr" />
+</launch>
