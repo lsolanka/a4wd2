@@ -10,8 +10,13 @@ target_include_directories(sensor_reader PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(sensor_reader nlohmann_json ${Boost_LIBRARIES})
-target_compile_definitions(sensor_reader PUBLIC BOOST_LOG_DYN_LINK)
+if (NOT HUNTER_ENABLED)
+    target_compile_definitions(sensor_reader PUBLIC BOOST_LOG_DYN_LINK)
+else()
+    set(_boost_libs Boost::boost Boost::log Boost::system Boost::thread)
+endif()
+target_link_libraries(sensor_reader
+                      nlohmann_json ${_boost_libs})
 
 if(BUILD_TESTS)
     add_gtest(test_sensor_reader test/unit/test_sensor_reader.cpp)
