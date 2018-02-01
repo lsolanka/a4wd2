@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SoftwareSerial.h>
+#include "ArduinoJson.hpp"
 
 #define SRF_BASE_ADDRESS 0x70            // Address of the SRF08
 #define NUM_SENSORS 2
@@ -8,6 +9,8 @@
 #define LIGHTBYTE        0x01            // Byte to read light sensor
 #define RANGEBYTE        0x02            // Byte for start of ranging data
 #define GAINBYTE         0x01
+
+using namespace ArduinoJson;
 
 void setup()
 {
@@ -79,33 +82,26 @@ int read_light(uint8_t address)
     return Wire.read();
 }
 
-void send_all_readings(uint8_t address, uint16_t range, uint16_t light)
-{
-    Serial.print("{ ");
-    Serial.print("\"a\": ");
-    Serial.print(address, DEC);
-    Serial.print(",");
-    Serial.print("\"r\": ");
-    Serial.print(range, DEC);
-    Serial.print(",");
-    Serial.print("\"l\": ");
-    Serial.print(light, DEC);
-    Serial.print("}");
-}
-
 void loop()
 {
+    // To generate an object of 3 srf08 values we need roughly 100 bytes
+    const int BUFFER_SIZE = 100;
+    StaticJsonBuffer<BUFFER_SIZE> buffer;
+    JsonObject& root = buffer.createObject();
+    JsonObject& srf08_json = root.createNestedObject("srf08");
+
     for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
     { 
         uint8_t sensor_address = SRF_BASE_ADDRESS + sensor_idx;
-
-        Serial.print("{ \"srf08\" :");
-
         int range = read_range(sensor_address);
         int light = read_light(sensor_address);
-        send_all_readings(sensor_address, range, light);
 
-        Serial.println("}");
+        srf08_json["a"] = sensor_address;
+        srf08_json["r"] = range;
+        srf08_json["l"] = light;
+
+        root.printTo(Serial);
+        Serial.println();
     }
 }
 

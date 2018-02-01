@@ -6,6 +6,7 @@ cmake_policy(SET CMP0048 NEW)
 
 project(sonar-rangers VERSION 0.1.0)
 
+include_directories(ArduinoJson/src)
 
 set(ARDUINO_DEFAULT_BOARD micro)
 set(ARDUINO_DEFAULT_PORT /dev/ttyACM0)
