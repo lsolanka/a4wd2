@@ -74,6 +74,8 @@ find_path(ARDUINO_SDK_PATH
           HINTS ${SDK_PATH_HINTS}
           DOC "Arduino SDK path.")
 
+message(STATUS "ARDUINO_SDK_PATH: ${ARDUINO_SDK_PATH}")
+
 if(ARDUINO_SDK_PATH)
     list(APPEND CMAKE_SYSTEM_PREFIX_PATH ${ARDUINO_SDK_PATH}/hardware/tools/avr)
     list(APPEND CMAKE_SYSTEM_PREFIX_PATH ${ARDUINO_SDK_PATH}/hardware/tools/avr/utils)

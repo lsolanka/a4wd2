@@ -451,7 +451,7 @@ endfunction()
 # [PUBLIC/USER]
 # see documentation at top
 #=============================================================================#
-function(GENERATE_ARDUINO_FIRMWARE INPUT_NAME)
+function(generate_arduino_firmware INPUT_NAME)
     message(STATUS "Generating ${INPUT_NAME}")
     parse_generator_arguments(${INPUT_NAME} INPUT
                               "NO_AUTOLIBS;MANUAL"                  # Options
@@ -642,9 +642,8 @@ endfunction()
 # [PUBLIC/USER]
 # see documentation at top
 #=============================================================================#
-function(REGISTER_HARDWARE_PLATFORM PLATFORM_PATH)
+function(register_hardware_platform PLATFORM PLATFORM_PATH)
     string(REGEX REPLACE "/$" "" PLATFORM_PATH ${PLATFORM_PATH})
-    GET_FILENAME_COMPONENT(PLATFORM ${PLATFORM_PATH} NAME)
 
     if(PLATFORM)
         string(TOUPPER ${PLATFORM} PLATFORM)
@@ -810,7 +809,7 @@ function(get_arduino_flags COMPILE_FLAGS_VAR LINK_FLAGS_VAR BOARD_ID MANUAL)
             set(COMPILE_FLAGS "${COMPILE_FLAGS} -DUSB_PID=${${BOARD_ID}.build.pid}")
         endif()
         if(NOT MANUAL)
-            set(COMPILE_FLAGS "${COMPILE_FLAGS} -I\"${${BOARD_CORE}.path}\" -I\"${ARDUINO_LIBRARIES_PATH}\"")
+            set(COMPILE_FLAGS "${COMPILE_FLAGS} -I\"${${BOARD_CORE}.path}\" -I\"${ARDUINO_LIBRARIES_PATH}\" -I\"${ARDUINO_LIBRARIES_PATH_EXTRA}\"")
         endif()
         set(LINK_FLAGS "-mmcu=${${BOARD_ID}.build.mcu}")
         if(ARDUINO_SDK_VERSION VERSION_GREATER 1.0 OR ARDUINO_SDK_VERSION VERSION_EQUAL 1.0)
@@ -920,9 +919,19 @@ function(find_arduino_libraries VAR_NAME SRCS ARDLIBS)
                     get_property(LIBRARY_SEARCH_PATH
                                  DIRECTORY     # Property Scope
                                  PROPERTY LINK_DIRECTORIES)
-                    foreach(LIB_SEARCH_PATH ${LIBRARY_SEARCH_PATH} ${ARDUINO_LIBRARIES_PATH} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/libraries ${ARDUINO_EXTRA_LIBRARIES_PATH})
+                    foreach(LIB_SEARCH_PATH
+                            ${LIBRARY_SEARCH_PATH}
+                            ${ARDUINO_LIBRARIES_PATH}
+                            ${ARDUINO_LIBRARIES_PATH_EXTRA}
+                            ${CMAKE_CURRENT_SOURCE_DIR}
+                            ${CMAKE_CURRENT_SOURCE_DIR}/libraries
+                            ${ARDUINO_EXTRA_LIBRARIES_PATH})
                         if(EXISTS ${LIB_SEARCH_PATH}/${INCLUDE_NAME}/${CMAKE_MATCH_1})
                             list(APPEND ARDUINO_LIBS ${LIB_SEARCH_PATH}/${INCLUDE_NAME})
+                            break()
+                        endif()
+                        if(EXISTS ${LIB_SEARCH_PATH}/${INCLUDE_NAME}/src/${CMAKE_MATCH_1})
+                            list(APPEND ARDUINO_LIBS ${LIB_SEARCH_PATH}/${INCLUDE_NAME}/src)
                             break()
                         endif()
                         if(EXISTS ${LIB_SEARCH_PATH}/${CMAKE_MATCH_1})
@@ -967,6 +976,10 @@ function(setup_arduino_library VAR_NAME BOARD_ID LIB_PATH COMPILE_FLAGS LINK_FLA
     set(LIB_INCLUDES)
 
     get_filename_component(LIB_NAME ${LIB_PATH} NAME)
+    if("${LIB_NAME}" STREQUAL "src")
+        get_filename_component(LIB_NAME ${LIB_PATH} DIRECTORY)
+        get_filename_component(LIB_NAME ${LIB_NAME} NAME)
+    endif()
     set(TARGET_LIB_NAME ${BOARD_ID}_${LIB_NAME})
     if(NOT TARGET ${TARGET_LIB_NAME})
         string(REGEX REPLACE ".*/" "" LIB_SHORT_NAME ${LIB_NAME})
@@ -2137,12 +2150,17 @@ set(ARDUINO_AVRDUDE_FLAGS -V                              CACHE STRING "")
 #                          Initialization                                     
 #=============================================================================#
 if(NOT ARDUINO_FOUND AND ARDUINO_SDK_PATH)
-    register_hardware_platform(${ARDUINO_SDK_PATH}/hardware/arduino/)
+    register_hardware_platform(ARDUINO ${ARDUINO_SDK_PATH}/hardware/arduino/avr)
 
     find_file(ARDUINO_LIBRARIES_PATH
         NAMES libraries
         PATHS ${ARDUINO_SDK_PATH}
         DOC "Path to directory containing the Arduino libraries.")
+
+    find_file(ARDUINO_LIBRARIES_PATH_EXTRA
+        NAMES libraries
+        PATHS ${ARDUINO_SDK_PATH}/hardware/arduino/avr
+        DOC "Path to extra directory containing the Arduino libraries with newer SDKs.")
 
     find_file(ARDUINO_VERSION_PATH
         NAMES lib/version.txt
