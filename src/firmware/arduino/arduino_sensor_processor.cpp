@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <SoftwareSerial.h>
 #include "ArduinoJson.hpp"
+#include "MPU9250.h"
 
 #define SRF_BASE_ADDRESS 0x70            // Address of the SRF08
 #define NUM_SENSORS 2
@@ -11,6 +12,9 @@
 #define GAINBYTE         0x01
 
 using namespace ArduinoJson;
+
+MPU9250 imu;
+bool imu_initialized = false;
 
 void setup()
 {
@@ -32,6 +36,13 @@ void setup()
     }
 
     Serial.begin(57600);
+
+    // IMU init
+    imu.initialize();
+    if (imu.testConnection())
+    {
+        imu_initialized = true;
+    }
 }
 
 void triggerRanging(uint8_t address)
@@ -85,21 +96,44 @@ int read_light(uint8_t address)
 void loop()
 {
     // To generate an object of 3 srf08 values we need roughly 100 bytes
-    const int BUFFER_SIZE = 100;
-    StaticJsonBuffer<BUFFER_SIZE> buffer;
-    JsonObject& root = buffer.createObject();
-    JsonObject& srf08_json = root.createNestedObject("srf08");
+    //const int BUFFER_SIZE = 100;
+    //StaticJsonBuffer<BUFFER_SIZE> buffer;
+    //JsonObject& root = buffer.createObject();
+    //JsonObject& srf08_json = root.createNestedObject("srf08");
 
-    for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
-    { 
-        uint8_t sensor_address = SRF_BASE_ADDRESS + sensor_idx;
-        int range = read_range(sensor_address);
-        int light = read_light(sensor_address);
+    //for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
+    //{ 
+    //    uint8_t sensor_address = SRF_BASE_ADDRESS + sensor_idx;
+    //    int range = read_range(sensor_address);
+    //    int light = read_light(sensor_address);
 
-        srf08_json["a"] = sensor_address;
-        srf08_json["r"] = range;
-        srf08_json["l"] = light;
+    //    srf08_json["a"] = sensor_address;
+    //    srf08_json["r"] = range;
+    //    srf08_json["l"] = light;
 
+    //    root.printTo(Serial);
+    //    Serial.println();
+    //}
+
+    {
+        const int IMU_BUFFER_SIZE = 250;
+        StaticJsonBuffer<IMU_BUFFER_SIZE> buffer;
+        JsonObject& root = buffer.createObject();
+        JsonObject& imu_json = root.createNestedObject("imu");
+
+        int16_t ax, ay, az, gx, gy, gz, mx, my, mz;
+        imu.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+        imu_json["ax"] = ax;
+        imu_json["ay"] = ay;
+        imu_json["az"] = az;
+
+        imu_json["gx"] = gx;
+        imu_json["gy"] = gy;
+        imu_json["gz"] = gz;
+
+        imu_json["mx"] = mx;
+        imu_json["my"] = my;
+        imu_json["mz"] = mz;
         root.printTo(Serial);
         Serial.println();
     }

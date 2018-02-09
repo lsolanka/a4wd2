@@ -146,7 +146,6 @@ TEST(sensor_reader, test_invalid_json)
     ASSERT_EQ(0, data_vec.size());
 }
 
-
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
