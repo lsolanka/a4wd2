@@ -25,6 +25,13 @@ class serial_string_line_reader : public boost::asio::streambuf
      */
     std::istream& get_stream();
 
+    /** Close the serial port. This should shut down anyone who attempts to
+     * read from the port.
+     *
+     * @todo Check that closing the port is actually a safe operation.
+     */
+    void shutdown() { m_port.close(); }
+
   protected:
     int_type underflow() override;
 
