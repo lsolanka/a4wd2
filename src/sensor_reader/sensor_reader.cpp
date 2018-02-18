@@ -22,6 +22,12 @@ void sensor_reader::read_all()
             break;
         }
 
+        if (line.size() > 0 && line[0] == '#')
+        {
+            BOOST_LOG_TRIVIAL(info) << line;
+            continue;
+        }
+
         json j;
         try
         {
