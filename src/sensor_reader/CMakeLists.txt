@@ -13,6 +13,7 @@ target_include_directories(sensor_reader PUBLIC
 )
 if (NOT HUNTER_ENABLED)
     target_compile_definitions(sensor_reader PUBLIC BOOST_LOG_DYN_LINK)
+    set(_boost_libs ${Boost_LIBRARIES})
 else()
     set(_boost_libs Boost::boost Boost::log Boost::system Boost::thread)
 endif()
