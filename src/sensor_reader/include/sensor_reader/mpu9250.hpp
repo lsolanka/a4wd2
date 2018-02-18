@@ -19,9 +19,9 @@ class mpu9250 : public sensor
   public:
     struct data_t
     {
-        int16_t ax;  //!< Accelerometer X
-        int16_t ay;  //!< Accelerometer Y
-        int16_t az;  //!< Accelerometer Z
+        float ax;  //!< Accelerometer X
+        float ay;  //!< Accelerometer Y
+        float az;  //!< Accelerometer Z
 
         int16_t gx;  //!< Gyro X
         int16_t gy;  //!< Gyro Y

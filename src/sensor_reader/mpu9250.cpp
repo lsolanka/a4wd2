@@ -6,9 +6,9 @@ namespace a4wd2::sensor_reader::sensors
 
 void from_json(const nlohmann::json& j, mpu9250::data_t& data)
 {
-    data.ax = j.at("ax").get<int>();
-    data.ay = j.at("ay").get<int>();
-    data.az = j.at("az").get<int>();
+    data.ax = j.at("ax").get<float>();
+    data.ay = j.at("ay").get<float>();
+    data.az = j.at("az").get<float>();
 
     data.gx = j.at("gx").get<int>();
     data.gy = j.at("gy").get<int>();
@@ -37,9 +37,9 @@ std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t& data)
 {
     boost::io::ios_flags_saver ifs(stream);
     stream << std::dec <<
-        "ax: " << std::setw(6) << data.ax << ", " <<
-        "ay: " << std::setw(6) << data.ay << ", " <<
-        "az: " << std::setw(6) << data.az << "; " <<
+        "ax: " << std::setw(6) << std::fixed << std::setprecision(3) << data.ax << ", " <<
+        "ay: " << std::setw(6) << std::fixed << std::setprecision(3) << data.ay << ", " <<
+        "az: " << std::setw(6) << std::fixed << std::setprecision(3) << data.az << "; " <<
 
         "gx: " << std::setw(6) << data.gx << ", " <<
         "gy: " << std::setw(6) << data.gy << ", " <<
