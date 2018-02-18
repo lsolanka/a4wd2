@@ -18,9 +18,9 @@ set(ARDUINO_DEFAULT_PORT /dev/ttyACM0)
 
 generate_arduino_firmware(arduino_sensor_processor
     SRCS arduino_sensor_processor.cpp
-         MPU9250.cpp
+         mpu9250.cpp
          I2Cdev/I2Cdev.cpp
-    HDRS include/mpu9250/MPU9250.hpp
+    HDRS include/mpu9250/mpu9250.hpp
          I2Cdev/I2Cdev.h
     PORT  /dev/ttyACM0
     BOARD micro

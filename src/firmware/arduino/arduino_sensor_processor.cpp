@@ -5,7 +5,7 @@
 #include "ArduinoJson.hpp"
 #include "I2Cdev/I2Cdev.h"
 
-#include "mpu9250/MPU9250.hpp"
+#include "mpu9250/mpu9250.hpp"
 #include "mpu9250/registers.hpp"
 #include "mpu9250/scale_conversions.hpp"
 #include "mpu9250/types.hpp"

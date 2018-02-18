@@ -35,7 +35,7 @@ THE SOFTWARE.
 ===============================================
 */
 
-#include "mpu9250/MPU9250.hpp"
+#include "mpu9250/mpu9250.hpp"
 
 namespace addr = mpu9250::regs::addr;
 
