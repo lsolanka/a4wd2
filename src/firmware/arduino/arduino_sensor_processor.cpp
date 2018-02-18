@@ -137,6 +137,8 @@ void loop()
 {
     static const float accel_resolution =
             mpu9250::get_accel_resolution(imu.getParameters().ascale);
+    static const float gyro_resolution =
+            mpu9250::get_gyro_resolution(imu.getParameters().gscale);
 
     // To generate an object of 3 srf08 values we need roughly 100 bytes
     // const int BUFFER_SIZE = 100;
@@ -170,9 +172,9 @@ void loop()
         imu_json["ay"] = ay * accel_resolution - accelBias[1];
         imu_json["az"] = az * accel_resolution - accelBias[2];
 
-        imu_json["gx"] = gx;
-        imu_json["gy"] = gy;
-        imu_json["gz"] = gz;
+        imu_json["gx"] = gx * gyro_resolution;
+        imu_json["gy"] = gy * gyro_resolution;
+        imu_json["gz"] = gz * gyro_resolution;
 
         imu_json["mx"] = mx;
         imu_json["my"] = my;

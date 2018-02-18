@@ -26,9 +26,9 @@ class mpu9250 : public sensor
 
         struct gyro
         {
-            int16_t x; //!< Gyro X
-            int16_t y; //!< Gyro Y
-            int16_t z; //!< Gyro Z
+            float x; //!< Gyro X [degrees/s]
+            float y; //!< Gyro Y [degrees/s]
+            float z; //!< Gyro Z [degrees/s]
         };
 
         struct mag

@@ -9,9 +9,9 @@ void from_json(const nlohmann::json& j, mpu9250::data_t& data)
     data.a.y = j.at("ay").get<float>();
     data.a.z = j.at("az").get<float>();
 
-    data.g.x = j.at("gx").get<int>();
-    data.g.y = j.at("gy").get<int>();
-    data.g.z = j.at("gz").get<int>();
+    data.g.x = j.at("gx").get<float>();
+    data.g.y = j.at("gy").get<float>();
+    data.g.z = j.at("gz").get<float>();
 
     data.m.x = j.at("mx").get<int>();
     data.m.y = j.at("my").get<int>();
@@ -44,9 +44,10 @@ std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::gyro& g)
 {
     boost::io::ios_flags_saver ifs(stream);
 
-    stream << "gx: " << std::setw(6) << g.x << ", "
-           << "gy: " << std::setw(6) << g.y << ", "
-           << "gz: " << std::setw(6) << g.z;
+    stream << std::dec << "gx: " << std::setw(6) << std::fixed << std::setprecision(3)
+           << g.x << ", "
+           << "gy: " << std::setw(6) << std::fixed << std::setprecision(3) << g.y << ", "
+           << "gz: " << std::setw(6) << std::fixed << std::setprecision(3) << g.z;
 
     return stream;
 }
