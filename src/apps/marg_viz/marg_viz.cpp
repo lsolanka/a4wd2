@@ -17,6 +17,8 @@ namespace sensors = a4wd2::sensor_reader::sensors;
 using namespace cv;
 using namespace std;
 
+static constexpr float FONT_SIZE = 12.f;
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -48,7 +50,8 @@ int main(int argc, char** argv)
 
     window.showWidget("Coordinate Widget", viz::WCoordinateSystem());
 
-    viz::WText sensor_text("IMU raw data: waiting for data...", cv::Point(10, 10));
+    viz::WText sensor_text("IMU raw data: waiting for data...", cv::Point(10, 10),
+                           FONT_SIZE);
     window.showWidget("sensor_text", sensor_text);
 
     while (!window.wasStopped())
@@ -68,12 +71,14 @@ int main(int argc, char** argv)
             imu_data.pop();
 
             std::stringstream ss;
-            ss << "IMU raw data: " << data;
+            ss << "IMU accel: " << data.a << '\n';
+            ss << "IMU gyro : " << data.g << '\n';
+            ss << "IMU mag  : " << data.m;
             sensor_text.setText(ss.str());
 
             window.showWidget("sensor_x",
                               viz::WArrow(cv::Point3d(0, 0, 0),
-                                          -cv::Point3d(data.ax, data.ay, data.az)));
+                                          -cv::Point3d(data.a.x, data.a.y, data.a.z)));
         }
 
         window.spinOnce(10, true);

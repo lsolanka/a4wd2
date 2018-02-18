@@ -17,17 +17,30 @@ class mpu9250 : public sensor
   public:
     struct data_t
     {
-        float ax; //!< Accelerometer X
-        float ay; //!< Accelerometer Y
-        float az; //!< Accelerometer Z
+        struct accel
+        {
+            float x; //!< Accelerometer X [g]
+            float y; //!< Accelerometer Y [g]
+            float z; //!< Accelerometer Z [g]
+        };
 
-        int16_t gx; //!< Gyro X
-        int16_t gy; //!< Gyro Y
-        int16_t gz; //!< Gyro Z
+        struct gyro
+        {
+            int16_t x; //!< Gyro X
+            int16_t y; //!< Gyro Y
+            int16_t z; //!< Gyro Z
+        };
 
-        int16_t mx; //!< Magnetometer X
-        int16_t my; //!< Magnetometer Y
-        int16_t mz; //!< Magnetometer Z
+        struct mag
+        {
+            int16_t x; //!< Magnetometer X
+            int16_t y; //!< Magnetometer Y
+            int16_t z; //!< Magnetometer Z
+        };
+
+        accel a;
+        gyro g;
+        mag m;
     };
 
     static const std::string ID; //!< String used for classification
@@ -46,6 +59,9 @@ class mpu9250 : public sensor
 
 void from_json(const nlohmann::json& j, mpu9250::data_t& data);
 
+std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::accel& a);
+std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::gyro& g);
+std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::mag& m);
 std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t& data);
 
 } // namespace a4wd2::sensor_reader::sensors
