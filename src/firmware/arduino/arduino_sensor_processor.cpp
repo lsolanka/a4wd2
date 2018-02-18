@@ -161,7 +161,7 @@ void loop()
     //}
 
     {
-        const int IMU_BUFFER_SIZE = 300;
+        const int IMU_BUFFER_SIZE = 350;
         StaticJsonBuffer<IMU_BUFFER_SIZE> buffer;
         JsonObject& root = buffer.createObject();
         JsonObject& imu_json = root.createNestedObject("imu");
