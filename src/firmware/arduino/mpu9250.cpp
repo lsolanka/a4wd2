@@ -60,11 +60,6 @@ mpu9250::mpu9250(const parameters& params) { m_params = params; }
  */
 void mpu9250::initialize()
 {
-    // setClockSource(regs::CLOCK_PLL_XGYRO);
-    // setFullScaleGyroRange(regs::GYRO_FS_250);
-    // setFullScaleAccelRange(regs::ACCEL_FS_2);
-    // setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
-
     // Wake up device
     I2Cdev::writeByte(m_params.dev_addr, addr::PWR_MGMT_1,
                       0x00); // Clear sleep mode bit (6), enable all sensors
@@ -95,32 +90,6 @@ void mpu9250::initialize()
 
     setFullScaleGyroRange(m_params.gscale);
     setFullScaleAccelRange(m_params.ascale);
-
-    // Set accelerometer sample rate configuration
-    // It is possible to get a 4 kHz sample rate from the accelerometer by choosing 1 for
-    // accel_fchoice_b bit [3]; in this case the bandwidth is 1.13 kHz
-    // c = I2Cdev::readByte(m_params.dev_addr,
-    //                     ACCEL_CONFIG2); // get current ACCEL_CONFIG2 register value
-    // c = c & ~0x0F; // Clear accel_fchoice_b (bit 3) and A_DLPFG (bits [2:0])
-    // c = c | 0x03;  // Set accelerometer rate to 1 kHz and bandwidth to 41 Hz
-    // I2Cdev::writeByte(m_params.dev_addr, ACCEL_CONFIG2,
-    //                  c); // Write new ACCEL_CONFIG2 register value
-
-    // The accelerometer, gyro, and thermometer are set to 1 kHz sample rates,
-    // but all these rates are further reduced by a factor of 5 to 200 Hz because of the
-    // SMPLRT_DIV setting
-
-    // Configure Interrupts and Bypass Enable
-    // Set interrupt pin active high, push-pull, hold interrupt pin level HIGH until
-    // interrupt cleared,
-    // clear on read of INT_STATUS, and enable I2C_BYPASS_EN so additional chips
-    // can join the I2C bus and all can be controlled by the Arduino as master
-    //   writeByte(m_params.dev_addr, INT_PIN_CFG, 0x22);
-    // I2Cdev::writeByte(m_params.dev_addr, INT_PIN_CFG,
-    //                  0x12); // INT is 50 microsecond pulse and any read to clear
-    // I2Cdev::writeByte(m_params.dev_addr, INT_ENABLE,
-    //                  0x01); // Enable data ready (bit 0) interrupt
-    // delay(100);
 }
 
 /** Set clock source setting.
