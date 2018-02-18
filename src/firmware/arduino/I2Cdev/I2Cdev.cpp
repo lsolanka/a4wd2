@@ -184,6 +184,13 @@ int8_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_
     return readBytes(devAddr, regAddr, 1, data, timeout);
 }
 
+uint8_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint16_t timeout)
+{
+    uint8_t result;
+    readBytes(devAddr, regAddr, 1, &result, timeout);
+    return result;
+}
+
 /** Read single word from a 16-bit device register.
  * @param devAddr I2C slave device address
  * @param regAddr Register regAddr to read from
