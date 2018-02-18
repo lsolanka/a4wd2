@@ -1,11 +1,10 @@
 #pragma once
 
-#include <string>
 #include <boost/asio.hpp>
+#include <string>
 
 namespace a4wd2::sensor_reader
 {
-
 /** This reader opens a serial port, and provides a boost::asio::streambuf
  * interface to read the data.
  */

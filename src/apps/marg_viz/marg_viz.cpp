@@ -1,14 +1,14 @@
 #include <iostream>
-#include <thread>
 #include <mutex>
 #include <queue>
+#include <thread>
 
-#include <opencv2/viz/vizcore.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/viz/vizcore.hpp>
 
+#include <sensor_reader/mpu9250.hpp>
 #include <sensor_reader/sensor_reader.hpp>
 #include <sensor_reader/string_line_reader.hpp>
-#include <sensor_reader/mpu9250.hpp>
 
 using a4wd2::sensor_reader::sensor_reader;
 using a4wd2::sensor_reader::serial_string_line_reader;
@@ -19,14 +19,13 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-
     if (argc < 2)
     {
         std::cerr << "read_serial <port_name>" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const char *port_name = argv[1];
+    const char* port_name = argv[1];
     serial_string_line_reader serial_reader(port_name, 9600);
 
     // Data vector shared between the window thread and serial thread
@@ -36,12 +35,10 @@ int main(int argc, char** argv)
     auto sensor_processor = [&]() {
         sensor_reader reader{serial_reader.get_stream()};
 
-        reader.add_sensor<sensors::mpu9250>([&](const auto& data)
-            {
-                std::lock_guard<std::mutex> lock(data_mutex);
-                imu_data.push(data);
-            }
-        );
+        reader.add_sensor<sensors::mpu9250>([&](const auto& data) {
+            std::lock_guard<std::mutex> lock(data_mutex);
+            imu_data.push(data);
+        });
         reader.read_all();
     };
     std::thread sensor_thread(sensor_processor);
@@ -54,11 +51,11 @@ int main(int argc, char** argv)
     viz::WText sensor_text("IMU raw data: waiting for data...", cv::Point(10, 10));
     window.showWidget("sensor_text", sensor_text);
 
-    while(!window.wasStopped())
+    while (!window.wasStopped())
     {
         {
             std::lock_guard<std::mutex> lock(data_mutex);
-            
+
             while (imu_data.size() > 1)
             {
                 imu_data.pop();
@@ -75,8 +72,8 @@ int main(int argc, char** argv)
             sensor_text.setText(ss.str());
 
             window.showWidget("sensor_x",
-                    viz::WArrow(cv::Point3d(0, 0, 0),
-                    -cv::Point3d(data.ax, data.ay, data.az)));
+                              viz::WArrow(cv::Point3d(0, 0, 0),
+                                          -cv::Point3d(data.ax, data.ay, data.az)));
         }
 
         window.spinOnce(10, true);

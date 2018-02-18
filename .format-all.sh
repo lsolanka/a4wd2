@@ -1,0 +1,12 @@
+# /bin/bash
+
+exclude_list="ArduinoJson I2Cdev arduino-cmake"
+all_files=$(git ls-files *.h *.hpp *.c *.cpp)
+
+for exclude in $exclude_list
+do
+    all_files=$(echo "$all_files" | sed "/$exclude/d")
+done
+
+echo "$all_files"
+clang-format-5.0 -i ${all_files}

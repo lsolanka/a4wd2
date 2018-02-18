@@ -1,5 +1,6 @@
 // I2Cdev library collection - MPU9250 I2C device class
-// Based on InvenSense MPU-9250 register map document rev. 2.0, 5/19/2011 (RM-MPU-6000A-00)
+// Based on InvenSense MPU-9250 register map document rev. 2.0, 5/19/2011
+// (RM-MPU-6000A-00)
 // 8/24/2011 by Jeff Rowberg <jeff@rowberg.net>
 // Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
 //
@@ -39,20 +40,14 @@ THE SOFTWARE.
 /** Default constructor, uses default I2C address.
  * @see MPU9250_DEFAULT_ADDRESS
  */
-MPU9250::MPU9250() {
-    devAddr = MPU9250_DEFAULT_ADDRESS;
-}
-
+MPU9250::MPU9250() { devAddr = MPU9250_DEFAULT_ADDRESS; }
 /** Specific address constructor.
  * @param address I2C address
  * @see MPU9250_DEFAULT_ADDRESS
  * @see MPU9250_ADDRESS_AD0_LOW
  * @see MPU9250_ADDRESS_AD0_HIGH
  */
-MPU9250::MPU9250(uint8_t address) {
-    devAddr = address;
-}
-
+MPU9250::MPU9250(uint8_t address) { devAddr = address; }
 /** Power on and prepare for general usage.
  * This will activate the device and take it out of sleep mode (which must be done
  * after start-up). This function also sets both the accelerometer and the gyroscope
@@ -60,7 +55,8 @@ MPU9250::MPU9250(uint8_t address) {
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  */
-void MPU9250::initialize() {
+void MPU9250::initialize()
+{
     setClockSource(MPU9250_CLOCK_PLL_XGYRO);
     setFullScaleGyroRange(MPU9250_GYRO_FS_250);
     setFullScaleAccelRange(MPU9250_ACCEL_FS_2);
@@ -97,18 +93,17 @@ void MPU9250::initialize() {
  * @see MPU9250_PWR1_CLKSEL_BIT
  * @see MPU9250_PWR1_CLKSEL_LENGTH
  */
-void MPU9250::setClockSource(uint8_t source) {
-    I2Cdev::writeBits(devAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_CLKSEL_BIT, MPU9250_PWR1_CLKSEL_LENGTH, source);
+void MPU9250::setClockSource(uint8_t source)
+{
+    I2Cdev::writeBits(devAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_CLKSEL_BIT,
+                      MPU9250_PWR1_CLKSEL_LENGTH, source);
 }
 
 /** Verify the I2C connection.
  * Make sure the device is connected and responds as expected.
  * @return True if connection is valid, false otherwise
  */
-bool MPU9250::testConnection() {
-    return getDeviceID() == 0x71;
-}
-
+bool MPU9250::testConnection() { return getDeviceID() == 0x71; }
 // GYRO_CONFIG register
 
 /** Get full-scale gyroscope range.
@@ -128,8 +123,10 @@ bool MPU9250::testConnection() {
  * @see MPU9250_GCONFIG_FS_SEL_BIT
  * @see MPU9250_GCONFIG_FS_SEL_LENGTH
  */
-uint8_t MPU9250::getFullScaleGyroRange() {
-    I2Cdev::readBits(devAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT, MPU9250_GCONFIG_FS_SEL_LENGTH, buffer);
+uint8_t MPU9250::getFullScaleGyroRange()
+{
+    I2Cdev::readBits(devAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT,
+                     MPU9250_GCONFIG_FS_SEL_LENGTH, buffer);
     return buffer[0];
 }
 /** Set full-scale gyroscope range.
@@ -140,8 +137,10 @@ uint8_t MPU9250::getFullScaleGyroRange() {
  * @see MPU9250_GCONFIG_FS_SEL_BIT
  * @see MPU9250_GCONFIG_FS_SEL_LENGTH
  */
-void MPU9250::setFullScaleGyroRange(uint8_t range) {
-    I2Cdev::writeBits(devAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT, MPU9250_GCONFIG_FS_SEL_LENGTH, range);
+void MPU9250::setFullScaleGyroRange(uint8_t range)
+{
+    I2Cdev::writeBits(devAddr, MPU9250_RA_GYRO_CONFIG, MPU9250_GCONFIG_FS_SEL_BIT,
+                      MPU9250_GCONFIG_FS_SEL_LENGTH, range);
 }
 
 /** Get full-scale accelerometer range.
@@ -161,16 +160,20 @@ void MPU9250::setFullScaleGyroRange(uint8_t range) {
  * @see MPU9250_ACONFIG_AFS_SEL_BIT
  * @see MPU9250_ACONFIG_AFS_SEL_LENGTH
  */
-uint8_t MPU9250::getFullScaleAccelRange() {
-    I2Cdev::readBits(devAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT, MPU9250_ACONFIG_AFS_SEL_LENGTH, buffer);
+uint8_t MPU9250::getFullScaleAccelRange()
+{
+    I2Cdev::readBits(devAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT,
+                     MPU9250_ACONFIG_AFS_SEL_LENGTH, buffer);
     return buffer[0];
 }
 /** Set full-scale accelerometer range.
  * @param range New full-scale accelerometer range setting
  * @see getFullScaleAccelRange()
  */
-void MPU9250::setFullScaleAccelRange(uint8_t range) {
-    I2Cdev::writeBits(devAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT, MPU9250_ACONFIG_AFS_SEL_LENGTH, range);
+void MPU9250::setFullScaleAccelRange(uint8_t range)
+{
+    I2Cdev::writeBits(devAddr, MPU9250_RA_ACCEL_CONFIG, MPU9250_ACONFIG_AFS_SEL_BIT,
+                      MPU9250_ACONFIG_AFS_SEL_LENGTH, range);
 }
 /** Get gyroscope output rate divider.
  * The sensor register output, FIFO output, DMP sampling, Motion detection, Zero
@@ -193,7 +196,8 @@ void MPU9250::setFullScaleAccelRange(uint8_t range) {
  * @return Current sample rate
  * @see MPU9250_RA_SMPLRT_DIV
  */
-uint8_t MPU9250::getRate() {
+uint8_t MPU9250::getRate()
+{
     I2Cdev::readByte(devAddr, MPU9250_RA_SMPLRT_DIV, buffer);
     return buffer[0];
 }
@@ -202,7 +206,8 @@ uint8_t MPU9250::getRate() {
  * @see getRate()
  * @see MPU9250_RA_SMPLRT_DIV
  */
-void MPU9250::setRate(uint8_t rate) {
+void MPU9250::setRate(uint8_t rate)
+{
     I2Cdev::writeByte(devAddr, MPU9250_RA_SMPLRT_DIV, rate);
 }
 
@@ -224,20 +229,22 @@ void MPU9250::setRate(uint8_t rate) {
  * @see getRotation()
  * @see MPU9250_RA_ACCEL_XOUT_H
  */
-void MPU9250::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
-    
-	//get accel and gyro
-	getMotion6(ax, ay, az, gx, gy, gz);
-	
-	//read mag
-	I2Cdev::writeByte(devAddr, MPU9250_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
-	delay(10);
-	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-	delay(10);
-	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
-	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
+void MPU9250::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy,
+                         int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz)
+{
+    // get accel and gyro
+    getMotion6(ax, ay, az, gx, gy, gz);
+
+    // read mag
+    I2Cdev::writeByte(devAddr, MPU9250_RA_INT_PIN_CFG,
+                      0x02); // set i2c bypass enable pin to true to access magnetometer
+    delay(10);
+    I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); // enable the magnetometer
+    delay(10);
+    I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
+    *mx = (((int16_t)buffer[1]) << 8) | buffer[0];
     *my = (((int16_t)buffer[3]) << 8) | buffer[2];
-    *mz = (((int16_t)buffer[5]) << 8) | buffer[4];		
+    *mz = (((int16_t)buffer[5]) << 8) | buffer[4];
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
@@ -251,7 +258,9 @@ void MPU9250::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
  * @see getRotation()
  * @see MPU9250_RA_ACCEL_XOUT_H
  */
-void MPU9250::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) {
+void MPU9250::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy,
+                         int16_t* gz)
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_ACCEL_XOUT_H, 14, buffer);
     *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
     *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
@@ -296,7 +305,8 @@ void MPU9250::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
  * @param z 16-bit signed integer container for Z-axis acceleration
  * @see MPU9250_RA_GYRO_XOUT_H
  */
-void MPU9250::getAcceleration(int16_t* x, int16_t* y, int16_t* z) {
+void MPU9250::getAcceleration(int16_t* x, int16_t* y, int16_t* z)
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_ACCEL_XOUT_H, 6, buffer);
     *x = (((int16_t)buffer[0]) << 8) | buffer[1];
     *y = (((int16_t)buffer[2]) << 8) | buffer[3];
@@ -307,7 +317,8 @@ void MPU9250::getAcceleration(int16_t* x, int16_t* y, int16_t* z) {
  * @see getMotion6()
  * @see MPU9250_RA_ACCEL_XOUT_H
  */
-int16_t MPU9250::getAccelerationX() {
+int16_t MPU9250::getAccelerationX()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_ACCEL_XOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -316,7 +327,8 @@ int16_t MPU9250::getAccelerationX() {
  * @see getMotion6()
  * @see MPU9250_RA_ACCEL_YOUT_H
  */
-int16_t MPU9250::getAccelerationY() {
+int16_t MPU9250::getAccelerationY()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_ACCEL_YOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -325,7 +337,8 @@ int16_t MPU9250::getAccelerationY() {
  * @see getMotion6()
  * @see MPU9250_RA_ACCEL_ZOUT_H
  */
-int16_t MPU9250::getAccelerationZ() {
+int16_t MPU9250::getAccelerationZ()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_ACCEL_ZOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -336,7 +349,8 @@ int16_t MPU9250::getAccelerationZ() {
  * @return Temperature reading in 16-bit 2's complement format
  * @see MPU9250_RA_TEMP_OUT_H
  */
-int16_t MPU9250::getTemperature() {
+int16_t MPU9250::getTemperature()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_TEMP_OUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -375,7 +389,8 @@ int16_t MPU9250::getTemperature() {
  * @see getMotion6()
  * @see MPU9250_RA_GYRO_XOUT_H
  */
-void MPU9250::getRotation(int16_t* x, int16_t* y, int16_t* z) {
+void MPU9250::getRotation(int16_t* x, int16_t* y, int16_t* z)
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_GYRO_XOUT_H, 6, buffer);
     *x = (((int16_t)buffer[0]) << 8) | buffer[1];
     *y = (((int16_t)buffer[2]) << 8) | buffer[3];
@@ -386,7 +401,8 @@ void MPU9250::getRotation(int16_t* x, int16_t* y, int16_t* z) {
  * @see getMotion6()
  * @see MPU9250_RA_GYRO_XOUT_H
  */
-int16_t MPU9250::getRotationX() {
+int16_t MPU9250::getRotationX()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_GYRO_XOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -395,7 +411,8 @@ int16_t MPU9250::getRotationX() {
  * @see getMotion6()
  * @see MPU9250_RA_GYRO_YOUT_H
  */
-int16_t MPU9250::getRotationY() {
+int16_t MPU9250::getRotationY()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_GYRO_YOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -404,7 +421,8 @@ int16_t MPU9250::getRotationY() {
  * @see getMotion6()
  * @see MPU9250_RA_GYRO_ZOUT_H
  */
-int16_t MPU9250::getRotationZ() {
+int16_t MPU9250::getRotationZ()
+{
     I2Cdev::readBytes(devAddr, MPU9250_RA_GYRO_ZOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
@@ -418,8 +436,10 @@ int16_t MPU9250::getRotationZ() {
  * @see MPU9250_WHO_AM_I_BIT
  * @see MPU9250_WHO_AM_I_LENGTH
  */
-uint8_t MPU9250::getDeviceID() {
-    I2Cdev::readBits(devAddr, MPU9250_RA_WHO_AM_I, MPU9250_WHO_AM_I_BIT, MPU9250_WHO_AM_I_LENGTH, buffer);
+uint8_t MPU9250::getDeviceID()
+{
+    I2Cdev::readBits(devAddr, MPU9250_RA_WHO_AM_I, MPU9250_WHO_AM_I_BIT,
+                     MPU9250_WHO_AM_I_LENGTH, buffer);
     return buffer[0];
 }
 /** Set Device ID.
@@ -431,40 +451,49 @@ uint8_t MPU9250::getDeviceID() {
  * @see MPU9250_WHO_AM_I_BIT
  * @see MPU9250_WHO_AM_I_LENGTH
  */
-void MPU9250::setDeviceID(uint8_t id) {
-    I2Cdev::writeBits(devAddr, MPU9250_RA_WHO_AM_I, MPU9250_WHO_AM_I_BIT, MPU9250_WHO_AM_I_LENGTH, id);
+void MPU9250::setDeviceID(uint8_t id)
+{
+    I2Cdev::writeBits(devAddr, MPU9250_RA_WHO_AM_I, MPU9250_WHO_AM_I_BIT,
+                      MPU9250_WHO_AM_I_LENGTH, id);
 }
 
 // USER_CTRL register (DMP functions)
 
-bool MPU9250::getDMPEnabled() {
+bool MPU9250::getDMPEnabled()
+{
     I2Cdev::readBit(devAddr, MPU9250_RA_USER_CTRL, MPU9250_USERCTRL_DMP_EN_BIT, buffer);
     return buffer[0];
 }
-void MPU9250::setDMPEnabled(bool enabled) {
+void MPU9250::setDMPEnabled(bool enabled)
+{
     I2Cdev::writeBit(devAddr, MPU9250_RA_USER_CTRL, MPU9250_USERCTRL_DMP_EN_BIT, enabled);
 }
-void MPU9250::resetDMP() {
+void MPU9250::resetDMP()
+{
     I2Cdev::writeBit(devAddr, MPU9250_RA_USER_CTRL, MPU9250_USERCTRL_DMP_RESET_BIT, true);
 }
 
 // DMP_CFG_1 register
 
-uint8_t MPU9250::getDMPConfig1() {
+uint8_t MPU9250::getDMPConfig1()
+{
     I2Cdev::readByte(devAddr, MPU9250_RA_DMP_CFG_1, buffer);
     return buffer[0];
 }
-void MPU9250::setDMPConfig1(uint8_t config) {
+void MPU9250::setDMPConfig1(uint8_t config)
+{
     I2Cdev::writeByte(devAddr, MPU9250_RA_DMP_CFG_1, config);
 }
 
 // DMP_CFG_2 register
 
-uint8_t MPU9250::getDMPConfig2() {
+uint8_t MPU9250::getDMPConfig2()
+{
     I2Cdev::readByte(devAddr, MPU9250_RA_DMP_CFG_2, buffer);
     return buffer[0];
 }
-void MPU9250::setDMPConfig2(uint8_t config) {
+void MPU9250::setDMPConfig2(uint8_t config)
+{
     I2Cdev::writeByte(devAddr, MPU9250_RA_DMP_CFG_2, config);
 }
 
@@ -479,7 +508,8 @@ void MPU9250::setDMPConfig2(uint8_t config) {
  * @see MPU9250_RA_PWR_MGMT_1
  * @see MPU9250_PWR1_SLEEP_BIT
  */
-bool MPU9250::getSleepEnabled() {
+bool MPU9250::getSleepEnabled()
+{
     I2Cdev::readBit(devAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_SLEEP_BIT, buffer);
     return buffer[0];
 }
@@ -489,6 +519,7 @@ bool MPU9250::getSleepEnabled() {
  * @see MPU9250_RA_PWR_MGMT_1
  * @see MPU9250_PWR1_SLEEP_BIT
  */
-void MPU9250::setSleepEnabled(bool enabled) {
+void MPU9250::setSleepEnabled(bool enabled)
+{
     I2Cdev::writeBit(devAddr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_SLEEP_BIT, enabled);
 }

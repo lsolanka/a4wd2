@@ -1,17 +1,16 @@
 #pragma once
 
-#include <string>
-#include <functional>
 #include <exception>
+#include <functional>
+#include <istream>
 #include <list>
 #include <memory>
-#include <istream>
+#include <string>
 
 #include <sensor_reader/sensor.hpp>
 
 namespace a4wd2::sensor_reader
 {
-
 /** Read sensor data and distribute the data to sensor subscribers registered
  * with the add_sensor method.
  *
@@ -23,14 +22,9 @@ namespace a4wd2::sensor_reader
 class sensor_reader
 {
   public:
-
     /** Create the reader with a specified input stream used for reading
      * line-based data. */
-    sensor_reader(std::istream& input_stream) :
-        m_input_stream(input_stream)
-    {
-    }
-
+    sensor_reader(std::istream& input_stream) : m_input_stream(input_stream) {}
     /** Register a new sensor subscriber.
      *
      * This method creates a new instance of the sensor_t class and forwards
@@ -45,12 +39,10 @@ class sensor_reader
      * The parsing will happen in the order of subscription (i.e. call to this
      * method).
      */
-    template<typename sensor_t, typename... Args>
-    void add_sensor(Args&&... args)
+    template <typename sensor_t, typename... Args> void add_sensor(Args&&... args)
     {
         m_sensor_map.try_emplace(sensor_t::ID, sensor_list_t{});
-        m_sensor_map[sensor_t::ID].push_back(std::make_shared<sensor_t>(
-                args...));
+        m_sensor_map[sensor_t::ID].push_back(std::make_shared<sensor_t>(args...));
     }
 
     /** Read all data line-by-line, until the end of stream is reached or the

@@ -1,5 +1,5 @@
-#include <iostream>
 #include <boost/log/trivial.hpp>
+#include <iostream>
 
 #include <nlohmann/json.hpp>
 
@@ -10,7 +10,6 @@ using json = nlohmann::json;
 
 namespace a4wd2::sensor_reader
 {
-
 void sensor_reader::read_all()
 {
     while (m_input_stream.good() && !m_input_stream.eof())
@@ -35,15 +34,17 @@ void sensor_reader::read_all()
         }
         catch (json::exception& e)
         {
-            BOOST_LOG_TRIVIAL(error) << "Parsing input line failed: " <<
-                std::quoted(line, '\'') << "; message: " << e.what() << std::endl;
+            BOOST_LOG_TRIVIAL(error)
+                    << "Parsing input line failed: " << std::quoted(line, '\'')
+                    << "; message: " << e.what() << std::endl;
             continue;
         }
 
         if (!j.is_object())
         {
-            BOOST_LOG_TRIVIAL(error) << "Top level JSON structure must be an object: "
-                << std::quoted(line, '\'') << ". Skipping this line.";
+            BOOST_LOG_TRIVIAL(error)
+                    << "Top level JSON structure must be an object: "
+                    << std::quoted(line, '\'') << ". Skipping this line.";
             continue;
         }
 

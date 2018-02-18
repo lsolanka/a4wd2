@@ -1,9 +1,8 @@
-#include <sensor_reader/mpu9250.hpp>
 #include <boost/io/ios_state.hpp>
+#include <sensor_reader/mpu9250.hpp>
 
 namespace a4wd2::sensor_reader::sensors
 {
-
 void from_json(const nlohmann::json& j, mpu9250::data_t& data)
 {
     data.ax = j.at("ax").get<float>();
@@ -19,13 +18,9 @@ void from_json(const nlohmann::json& j, mpu9250::data_t& data)
     data.mz = j.at("mz").get<int>();
 }
 
-
 const std::string mpu9250::ID = "imu";
 
-mpu9250::mpu9250(std::function<void (const data_t& data)> on_data)
-    : m_on_data(on_data)
-{
-}
+mpu9250::mpu9250(std::function<void(const data_t& data)> on_data) : m_on_data(on_data) {}
 
 bool mpu9250::parse(const nlohmann::json& j)
 {
@@ -36,18 +31,18 @@ bool mpu9250::parse(const nlohmann::json& j)
 std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t& data)
 {
     boost::io::ios_flags_saver ifs(stream);
-    stream << std::dec <<
-        "ax: " << std::setw(6) << std::fixed << std::setprecision(3) << data.ax << ", " <<
-        "ay: " << std::setw(6) << std::fixed << std::setprecision(3) << data.ay << ", " <<
-        "az: " << std::setw(6) << std::fixed << std::setprecision(3) << data.az << "; " <<
-
-        "gx: " << std::setw(6) << data.gx << ", " <<
-        "gy: " << std::setw(6) << data.gy << ", " <<
-        "gz: " << std::setw(6) << data.gz << "; " <<
-
-        "mx: " << std::setw(6) << data.mx << ", " <<
-        "my: " << std::setw(6) << data.my << ", " <<
-        "mz: " << std::setw(6) << data.mz << "; ";
+    stream << std::dec << "ax: " << std::setw(6) << std::fixed << std::setprecision(3)
+           << data.ax << ", "
+           << "ay: " << std::setw(6) << std::fixed << std::setprecision(3) << data.ay
+           << ", "
+           << "az: " << std::setw(6) << std::fixed << std::setprecision(3) << data.az
+           << "; "
+           << "gx: " << std::setw(6) << data.gx << ", "
+           << "gy: " << std::setw(6) << data.gy << ", "
+           << "gz: " << std::setw(6) << data.gz << "; "
+           << "mx: " << std::setw(6) << data.mx << ", "
+           << "my: " << std::setw(6) << data.my << ", "
+           << "mz: " << std::setw(6) << data.mz << "; ";
 
     return stream;
 }

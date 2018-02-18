@@ -1,12 +1,12 @@
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
 
 #include <sensor_reader/sensor_reader.hpp>
-#include <sensor_reader/string_line_reader.hpp>
 #include <sensor_reader/srf08.hpp>
+#include <sensor_reader/string_line_reader.hpp>
 
 using a4wd2::sensor_reader::sensor_reader;
 using a4wd2::sensor_reader::serial_string_line_reader;
@@ -36,32 +36,27 @@ int main(int argc, char* argv[])
     }
     ros::init(argc, argv, "sensor_publisher");
 
-    const char *port_name = argv[1];
+    const char* port_name = argv[1];
     serial_string_line_reader serial_reader(port_name, 9600);
     sensor_reader reader{serial_reader.get_stream()};
 
     ros::NodeHandle node_handle;
     ros::Publisher range_pub;
     range_pub =
-        node_handle.advertise<sensor_msgs::Range>("sonar_ranger",
-                QUEUE_SIZE, false);
+            node_handle.advertise<sensor_msgs::Range>("sonar_ranger", QUEUE_SIZE, false);
 
-    reader.add_sensor<sensors::srf08>(0x70, [&] (const auto& data)
-        {
-            sensor_msgs::Range r = range_from_srf08(data);
-            r.header.frame_id = "range_fr";
-            range_pub.publish(r);
-            std::cout << data << "; ";
-        }
-    );
-    reader.add_sensor<sensors::srf08>(0x71, [&] (const auto& data)
-        {
-            sensor_msgs::Range r = range_from_srf08(data);
-            r.header.frame_id = "range_fl";
-            range_pub.publish(r);
-            std::cout << data << std::endl;
-        }
-    );
+    reader.add_sensor<sensors::srf08>(0x70, [&](const auto& data) {
+        sensor_msgs::Range r = range_from_srf08(data);
+        r.header.frame_id = "range_fr";
+        range_pub.publish(r);
+        std::cout << data << "; ";
+    });
+    reader.add_sensor<sensors::srf08>(0x71, [&](const auto& data) {
+        sensor_msgs::Range r = range_from_srf08(data);
+        r.header.frame_id = "range_fl";
+        range_pub.publish(r);
+        std::cout << data << std::endl;
+    });
     reader.read_all();
 
     return EXIT_SUCCESS;
