@@ -53,9 +53,18 @@ class mpu9250
 {
     struct parameters
     {
+        uint8_t dev_addr;
         accel_scale ascale;
         gyro_scale gscale;
-        uint8_t dev_addr;
+        mag_scale mscale;
+        mag_mode mmode;
+
+        parameters()
+            : dev_addr(regs::addr::DEFAULT_ADDRESS), ascale(accel_scale::AFS_2G),
+              gscale(gyro_scale::GFS_250DPS), mscale(mag_scale::MFS_16BITS),
+              mmode(mag_mode::CONT_MEASUREMENT_2)
+        {
+        }
     };
 
   public:
@@ -68,6 +77,9 @@ class mpu9250
     mpu9250(const parameters& params);
 
     void initialize();
+
+    void initMagnetometer(float* adjustment_val);
+
     bool testConnection();
     void setClockSource(uint8_t source);
 

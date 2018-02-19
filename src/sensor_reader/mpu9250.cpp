@@ -13,9 +13,9 @@ void from_json(const nlohmann::json& j, mpu9250::data_t& data)
     data.g.y = j.at("gy").get<float>();
     data.g.z = j.at("gz").get<float>();
 
-    data.m.x = j.at("mx").get<int>();
-    data.m.y = j.at("my").get<int>();
-    data.m.z = j.at("mz").get<int>();
+    data.m.x = j.at("mx").get<float>();
+    data.m.y = j.at("my").get<float>();
+    data.m.z = j.at("mz").get<float>();
 }
 
 const std::string mpu9250::ID = "imu";
@@ -56,9 +56,10 @@ std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::mag& m)
 {
     boost::io::ios_flags_saver ifs(stream);
 
-    stream << "mx: " << std::setw(6) << m.x << ", "
-           << "my: " << std::setw(6) << m.y << ", "
-           << "mz: " << std::setw(6) << m.z;
+    stream << std::dec << "mx: " << std::setw(6) << std::fixed << std::setprecision(3)
+           << m.x << ", "
+           << "my: " << std::setw(6) << std::fixed << std::setprecision(3) << m.y << ", "
+           << "mz: " << std::setw(6) << std::fixed << std::setprecision(3) << m.z;
 
     return stream;
 }

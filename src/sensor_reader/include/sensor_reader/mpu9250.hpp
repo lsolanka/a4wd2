@@ -33,9 +33,9 @@ class mpu9250 : public sensor
 
         struct mag
         {
-            int16_t x; //!< Magnetometer X
-            int16_t y; //!< Magnetometer Y
-            int16_t z; //!< Magnetometer Z
+            float x; //!< Magnetometer X [mG]
+            float y; //!< Magnetometer Y [mG]
+            float z; //!< Magnetometer Z [mG]
         };
 
         accel a;

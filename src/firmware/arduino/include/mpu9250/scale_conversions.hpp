@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math.h>
+
 #include "types.hpp"
 
 namespace mpu9250
@@ -13,16 +15,18 @@ float get_accel_resolution(accel_scale scale)
         // 2 Gs (00), 4 Gs (01), 8 Gs (10), and 16 Gs  (11).
         case accel_scale::AFS_2G:
             return 2.0 / 32768.0;
-            break;
+
         case accel_scale::AFS_4G:
             return 4.0 / 32768.0;
-            break;
+
         case accel_scale::AFS_8G:
             return 8.0 / 32768.0;
-            break;
+
         case accel_scale::AFS_16G:
             return 16.0 / 32768.0;
-            break;
+
+        default:
+            return NAN;
     }
 }
 
@@ -45,6 +49,31 @@ float get_gyro_resolution(gyro_scale scale)
 
         case gyro_scale::GFS_2000DPS:
             return 2000.0 / 32768.0;
+
+        default:
+            return NAN;
+    }
+}
+
+/** Get a conversion multiplier based on the magnetometer scale.
+ * @param scale Magnetometer scale setting.
+ * @return The constant to multiplier the magnetometer values in uT to obtain
+ *         mG.
+ */
+float get_mag_resolution(mag_scale scale)
+{
+    switch (scale)
+    {
+        // Possible magnetometer scales (and their register bit settings) are:
+        // 14 bit resolution (0) and 16 bit resolution (1)
+        case mag_scale::MFS_14BITS:
+            return 10. * 4912. / 8190.; // Proper scale to return milliGauss
+
+        case mag_scale::MFS_16BITS:
+            return 10. * 4912. / 32760.0; // Proper scale to return milliGauss
+
+        default:
+            return NAN;
     }
 }
 

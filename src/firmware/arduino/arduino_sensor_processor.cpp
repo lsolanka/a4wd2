@@ -28,6 +28,8 @@ bool imu_initialized = false;
 float gyroBias[3] = {0, 0, 0};
 float accelBias[3] = {0, 0, 0};
 
+float mag_sensitivity_adj[3] = {0, 0, 0};
+
 void setup()
 {
     Wire.begin();
@@ -67,6 +69,14 @@ void setup()
     Serial.print(gyroBias[1]);
     Serial.print(" ");
     Serial.println(gyroBias[2]);
+
+    imu.initMagnetometer(mag_sensitivity_adj);
+    Serial.print("# magnetometer sensitivity adjustment: ");
+    Serial.print(mag_sensitivity_adj[0]);
+    Serial.print(" ");
+    Serial.print(mag_sensitivity_adj[1]);
+    Serial.print(" ");
+    Serial.println(mag_sensitivity_adj[2]);
 
     imu.initialize();
     if (imu.testConnection())
@@ -139,6 +149,8 @@ void loop()
             mpu9250::get_accel_resolution(imu.getParameters().ascale);
     static const float gyro_resolution =
             mpu9250::get_gyro_resolution(imu.getParameters().gscale);
+    static const float mag_resolution =
+            mpu9250::get_mag_resolution(imu.getParameters().mscale);
 
     // To generate an object of 3 srf08 values we need roughly 100 bytes
     // const int BUFFER_SIZE = 100;
@@ -161,7 +173,7 @@ void loop()
     //}
 
     {
-        const int IMU_BUFFER_SIZE = 350;
+        const int IMU_BUFFER_SIZE = 400;
         StaticJsonBuffer<IMU_BUFFER_SIZE> buffer;
         JsonObject& root = buffer.createObject();
         JsonObject& imu_json = root.createNestedObject("imu");
@@ -176,9 +188,9 @@ void loop()
         imu_json["gy"] = gy * gyro_resolution;
         imu_json["gz"] = gz * gyro_resolution;
 
-        imu_json["mx"] = mx;
-        imu_json["my"] = my;
-        imu_json["mz"] = mz;
+        imu_json["mx"] = mx * mag_resolution * mag_sensitivity_adj[0];
+        imu_json["my"] = my * mag_resolution * mag_sensitivity_adj[1];
+        imu_json["mz"] = mz * mag_resolution * mag_sensitivity_adj[2];
         root.printTo(Serial);
         Serial.println();
     }

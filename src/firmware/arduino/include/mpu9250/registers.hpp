@@ -27,10 +27,10 @@ static constexpr uint8_t ZOUT_L = 0x07;
 static constexpr uint8_t ZOUT_H = 0x08;
 static constexpr uint8_t ST2 =
         0x09; // Data overflow bit 3 and data read error status bit 2
-static constexpr uint8_t CNTL = 0x0A; // Power down (0000), single-measurement (0001),
-                                      // self-test (1000) and Fuse ROM // (1111) modes on
-                                      // bits 3:0
-static constexpr uint8_t ASTC = 0x0C; // Self test control
+static constexpr uint8_t CNTL = 0x0A;   // Power down (0000), single-measurement (0001),
+                                        // self-test (1000) and Fuse ROM (1111) modes on
+                                        // bits 3:0
+static constexpr uint8_t ASTC = 0x0C;   // Self test control
 static constexpr uint8_t I2CDIS = 0x0F; // I2C disable
 static constexpr uint8_t ASAX = 0x10;   // Fuse ROM x-axis sensitivity adjustment value
 static constexpr uint8_t ASAY = 0x11;   // Fuse ROM y-axis sensitivity adjustment value
