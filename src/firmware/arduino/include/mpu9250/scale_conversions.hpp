@@ -7,7 +7,7 @@
 namespace mpu9250
 {
 
-float get_accel_resolution(accel_scale scale)
+inline float get_accel_resolution(accel_scale scale)
 {
     switch (scale)
     {
@@ -30,7 +30,7 @@ float get_accel_resolution(accel_scale scale)
     }
 }
 
-float get_gyro_resolution(gyro_scale scale)
+inline float get_gyro_resolution(gyro_scale scale)
 {
     switch (scale)
     {
@@ -60,7 +60,7 @@ float get_gyro_resolution(gyro_scale scale)
  * @return The constant to multiplier the magnetometer values in uT to obtain
  *         mG.
  */
-float get_mag_resolution(mag_scale scale)
+inline float get_mag_resolution(mag_scale scale)
 {
     switch (scale)
     {

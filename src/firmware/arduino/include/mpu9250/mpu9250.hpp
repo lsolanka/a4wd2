@@ -78,7 +78,7 @@ class mpu9250
 
     void initialize();
 
-    void initMagnetometer(float* adjustment_val);
+    void initMagnetometer();
 
     bool testConnection();
     void setClockSource(uint8_t source);
@@ -225,9 +225,21 @@ class mpu9250
      */
     void calibrateAccelGyro(float* gyroBias, float* accelBias);
 
+    void calibrateMag();
+
+    const float* getMagSensitivityAdjustment() const { return m_mag_sensitivity_adj; }
+    const float* getMagBias() const { return m_mag_bias; }
+    const float* getMagScale() const { return m_mag_scale; }
+
   private:
     uint8_t buffer[14];
+
     parameters m_params;
+    float m_mag_sensitivity_adj[3];
+    float m_mag_bias[3];
+    float m_mag_scale[3];
+
+    bool readMagData(int16_t* destination);
 };
 
 } // namespace mpu9250

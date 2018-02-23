@@ -26,4 +26,6 @@ generate_arduino_firmware(arduino_sensor_processor
     BOARD micro
 )
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DI2CDEV_SERIAL_DEBUG")
+
 print_programmer_list()

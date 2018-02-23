@@ -22,38 +22,50 @@
 
 using namespace ArduinoJson;
 
+namespace addr = mpu9250::regs::addr;
+
 mpu9250::mpu9250 imu;
 bool imu_initialized = false;
 
 float gyroBias[3] = {0, 0, 0};
 float accelBias[3] = {0, 0, 0};
 
-float mag_sensitivity_adj[3] = {0, 0, 0};
+// Manually collected calibration data
+float magBias[3] = {292.65, 298.14, -397.12}; // mG
+float magScale[3] = {1.01, 1.02, 0.97};
 
 void setup()
 {
     Wire.begin();
     delay(100);
 
-    // Reduce range
-    for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
-    {
-        Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
-        Wire.write(RANGEBYTE);
-        Wire.write(0x46);
-        Wire.endTransmission();
+    //// Reduce range
+    // for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
+    //{
+    //    Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
+    //    Wire.write(RANGEBYTE);
+    //    Wire.write(0x46);
+    //    Wire.endTransmission();
 
-        Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
-        Wire.write(GAINBYTE);
-        Wire.write(0x18);
-        Wire.endTransmission();
-    }
+    //    Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
+    //    Wire.write(GAINBYTE);
+    //    Wire.write(0x18);
+    //    Wire.endTransmission();
+    //}
 
     Serial.begin(57600);
 
     // IMU init
     delay(5000);
 
+    imu.initialize();
+    if (imu.testConnection())
+    {
+        imu_initialized = true;
+    }
+    Serial.println("# MPU9250 initialized for active data mode....");
+
+    Serial.println("# Accel/Gyro calibration...");
     imu.calibrateAccelGyro(gyroBias, accelBias);
     Serial.print("# accel biases (mg): ");
     Serial.print(1000. * accelBias[0]);
@@ -70,7 +82,12 @@ void setup()
     Serial.print(" ");
     Serial.println(gyroBias[2]);
 
-    imu.initMagnetometer(mag_sensitivity_adj);
+    // Read the WHO_AM_I register of the magnetometer, this is a good test of
+    // communication
+    delay(10);
+    Serial.println("# Magnetometer init...");
+    imu.initMagnetometer();
+    auto mag_sensitivity_adj = imu.getMagSensitivityAdjustment();
     Serial.print("# magnetometer sensitivity adjustment: ");
     Serial.print(mag_sensitivity_adj[0]);
     Serial.print(" ");
@@ -78,21 +95,25 @@ void setup()
     Serial.print(" ");
     Serial.println(mag_sensitivity_adj[2]);
 
-    imu.initialize();
-    if (imu.testConnection())
-    {
-        imu_initialized = true;
-    }
-    Serial.println("# MPU9250 initialized for active data mode....");
+    // imu.calibrateMag();
+    // magBias[0] = imu.getMagBias()[0];
+    // magBias[1] = imu.getMagBias()[1];
+    // magBias[2] = imu.getMagBias()[2];
+    // magScale[0] = imu.getMagScale()[0];
+    // magScale[1] = imu.getMagScale()[1];
+    // magScale[2] = imu.getMagScale()[2];
 
-    // Read the WHO_AM_I register of the magnetometer, this is a good test of
-    // communication
-    byte d = I2Cdev::readByte(mpu9250::regs::addr::mag::ADDRESS,
-                              mpu9250::regs::addr::mag::WHO_AM_I);
+    // set i2c bypass enable pin to true to access magnetometer
+    I2Cdev::writeByte(imu.getParameters().dev_addr, addr::INT_PIN_CFG, 0x02);
+    // Sanity check for the magnetometer
+    uint8_t id = I2Cdev::readByte(addr::mag::ADDRESS, addr::mag::WHO_AM_I);
+
     Serial.print("# AK8963: I AM ");
-    Serial.print(d, HEX);
+    Serial.print(id, HEX);
     Serial.print("; I should be ");
     Serial.println(0x48, HEX);
+
+    delay(10);
 }
 
 void triggerRanging(uint8_t address)
@@ -173,7 +194,7 @@ void loop()
     //}
 
     {
-        const int IMU_BUFFER_SIZE = 400;
+        const int IMU_BUFFER_SIZE = 300;
         StaticJsonBuffer<IMU_BUFFER_SIZE> buffer;
         JsonObject& root = buffer.createObject();
         JsonObject& imu_json = root.createNestedObject("imu");
@@ -188,11 +209,19 @@ void loop()
         imu_json["gy"] = gy * gyro_resolution;
         imu_json["gz"] = gz * gyro_resolution;
 
-        imu_json["mx"] = mx * mag_resolution * mag_sensitivity_adj[0];
-        imu_json["my"] = my * mag_resolution * mag_sensitivity_adj[1];
-        imu_json["mz"] = mz * mag_resolution * mag_sensitivity_adj[2];
+        imu_json["mx"] = (mx * mag_resolution * imu.getMagSensitivityAdjustment()[0] -
+                          magBias[0]) *
+                         magScale[0];
+        imu_json["my"] = (my * mag_resolution * imu.getMagSensitivityAdjustment()[1] -
+                          magBias[1]) *
+                         magScale[1];
+        imu_json["mz"] = (mz * mag_resolution * imu.getMagSensitivityAdjustment()[2] -
+                          magBias[2]) *
+                         magScale[2];
         root.printTo(Serial);
         Serial.println();
+
+        delay(1000);
     }
 }
 

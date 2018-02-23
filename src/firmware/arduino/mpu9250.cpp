@@ -36,15 +36,24 @@ THE SOFTWARE.
 */
 
 #include "mpu9250/mpu9250.hpp"
+#include "mpu9250/scale_conversions.hpp"
 
 namespace addr = mpu9250::regs::addr;
 
 namespace mpu9250
 {
 
-mpu9250::mpu9250() : m_params() {}
+mpu9250::mpu9250()
+    : m_params(), m_mag_sensitivity_adj{1.f, 1.f, 1.f}, m_mag_bias{0, 0, 0},
+      m_mag_scale{1.f, 1.f, 1.f}
+{
+}
 
-mpu9250::mpu9250(const parameters& params) { m_params = params; }
+mpu9250::mpu9250(const parameters& params)
+    : m_params(params), m_mag_sensitivity_adj{1.f, 1.f, 1.f}, m_mag_bias{0, 0, 0},
+      m_mag_scale{1.f, 1.f, 1.f}
+{
+}
 
 /** Power on and prepare for general usage.
  * This will activate the device and take it out of sleep mode (which must be done
@@ -85,6 +94,9 @@ void mpu9250::initialize()
 
     setFullScaleGyroRange(m_params.gscale);
     setFullScaleAccelRange(m_params.ascale);
+
+    I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
+                      0x02); // set i2c bypass enable pin to true to access magnetometer
 }
 
 /** Set clock source setting.
@@ -263,15 +275,15 @@ void mpu9250::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
     getMotion6(ax, ay, az, gx, gy, gz);
 
     // read mag
-    I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
-                      0x02); // set i2c bypass enable pin to true to access magnetometer
-    delay(10);
-    I2Cdev::writeByte(addr::mag::ADDRESS, 0x0A, 0x01); // enable the magnetometer
-    delay(10);
-    I2Cdev::readBytes(addr::mag::ADDRESS, addr::mag::XOUT_L, 6, buffer);
-    *mx = (((int16_t)buffer[1]) << 8) | buffer[0];
-    *my = (((int16_t)buffer[3]) << 8) | buffer[2];
-    *mz = (((int16_t)buffer[5]) << 8) | buffer[4];
+    //I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
+    //                  0x02); // set i2c bypass enable pin to true to access magnetometer
+    int16_t mag[3];
+    if (readMagData(mag))
+    {
+        *mx = mag[0];
+        *my = mag[1];
+        *mz = mag[2];
+    }
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
@@ -601,7 +613,7 @@ void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
     accelBias[2] = (float)accel_bias[2] / (float)accelsensitivity;
 }
 
-void mpu9250::initMagnetometer(float* adjustment_val)
+void mpu9250::initMagnetometer()
 {
     // Power down
     I2Cdev::writeByte(addr::mag::ADDRESS, addr::mag::CNTL, (uint8_t)mag_mode::POWER_DOWN);
@@ -615,11 +627,13 @@ void mpu9250::initMagnetometer(float* adjustment_val)
     // See register map for MPU9250 (doc. # RM-MPU-9250A-00) for the formula
     auto adjust = [](uint8_t raw) { return (float)(raw - 128) / 256. + 1.f; };
 
+    I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
+                      0x02); // set i2c bypass enable pin to true to access magnetometer
     uint8_t raw_data[3];
     I2Cdev::readBytes(addr::mag::ADDRESS, addr::mag::ASAX, 3, raw_data);
-    adjustment_val[0] = adjust(raw_data[0]);
-    adjustment_val[1] = adjust(raw_data[1]);
-    adjustment_val[2] = adjust(raw_data[2]);
+    m_mag_sensitivity_adj[0] = adjust(raw_data[0]);
+    m_mag_sensitivity_adj[1] = adjust(raw_data[1]);
+    m_mag_sensitivity_adj[2] = adjust(raw_data[2]);
 
     // Power down magnetometer
     I2Cdev::writeByte(addr::mag::ADDRESS, addr::mag::CNTL, (uint8_t)mag_mode::POWER_DOWN);
@@ -631,69 +645,125 @@ void mpu9250::initMagnetometer(float* adjustment_val)
     delay(50);
 }
 
-// void magcalMPU9250(float* dest1, float* dest2)
-//{
-//    uint16_t ii = 0, sample_count = 0;
-//    int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
-//    int16_t mag_max[3] = {-32767, -32767, -32767}, mag_min[3] = {32767, 32767, 32767},
-//            mag_temp[3] = {0, 0, 0};
-//
-//    Serial.println("Mag Calibration: Wave device in a figure eight until done!");
-//    delay(4000);
-//
-//    // shoot for ~fifteen seconds of mag data
-//    if (Mmode == 0x02)
-//        sample_count = 128; // at 8 Hz ODR, new mag data is available every 125 ms
-//    if (Mmode == 0x06)
-//        sample_count = 1500; // at 100 Hz ODR, new mag data is available every 10 ms
-//
-//    for (ii = 0; ii < sample_count; ii++)
-//    {
-//        readMagData(mag_temp); // Read the mag data
-//        for (int jj = 0; jj < 3; jj++)
-//        {
-//            if (mag_temp[jj] > mag_max[jj])
-//                mag_max[jj] = mag_temp[jj];
-//            if (mag_temp[jj] < mag_min[jj])
-//                mag_min[jj] = mag_temp[jj];
-//        }
-//        if (Mmode == 0x02)
-//            delay(135); // at 8 Hz ODR, new mag data is available every 125 ms
-//        if (Mmode == 0x06)
-//            delay(12); // at 100 Hz ODR, new mag data is available every 10 ms
-//    }
-//
-//    //    Serial.println("mag x min/max:"); Serial.println(mag_max[0]);
-//    //    Serial.println(mag_min[0]); Serial.println("mag y min/max:");
-//    //    Serial.println(mag_max[1]); Serial.println(mag_min[1]); Serial.println("mag z
-//    //    min/max:"); Serial.println(mag_max[2]); Serial.println(mag_min[2]);
-//
-//    // Get hard iron correction
-//    mag_bias[0] = (mag_max[0] + mag_min[0]) / 2; // get average x mag bias in counts
-//    mag_bias[1] = (mag_max[1] + mag_min[1]) / 2; // get average y mag bias in counts
-//    mag_bias[2] = (mag_max[2] + mag_min[2]) / 2; // get average z mag bias in counts
-//
-//    // save mag biases in G for main program
-//    dest1[0] = (float)mag_bias[0] * mRes * magCalibration[0];
-//    dest1[1] = (float)mag_bias[1] * mRes * magCalibration[1];
-//    dest1[2] = (float)mag_bias[2] * mRes * magCalibration[2];
-//
-//    // Get soft iron correction estimate
-//    mag_scale[0] = (mag_max[0] - mag_min[0]) /
-//                   2; // get average x axis max chord length in counts
-//    mag_scale[1] = (mag_max[1] - mag_min[1]) /
-//                   2; // get average y axis max chord length in counts
-//    mag_scale[2] = (mag_max[2] - mag_min[2]) /
-//                   2; // get average z axis max chord length in counts
-//
-//    float avg_rad = mag_scale[0] + mag_scale[1] + mag_scale[2];
-//    avg_rad /= 3.0;
-//
-//    dest2[0] = avg_rad / ((float)mag_scale[0]);
-//    dest2[1] = avg_rad / ((float)mag_scale[1]);
-//    dest2[2] = avg_rad / ((float)mag_scale[2]);
-//
-//    Serial.println("Mag Calibration done!");
-//}
+bool mpu9250::readMagData(int16_t* destination)
+{
+    uint8_t rawData[7];
+    bool newMagData = (I2Cdev::readByte(addr::mag::ADDRESS, addr::mag::ST1) & 0x01);
+    if (newMagData)
+    {
+        // Read the six raw data and ST2 registers sequentially into data
+        // array
+        I2Cdev::readBytes(addr::mag::ADDRESS, addr::mag::XOUT_L, 7, &rawData[0]);
+        uint8_t c = rawData[6]; // End data read by reading ST2 register
+
+        // Check if magnetic sensor overflow set, if not then report data
+        if (!(c & 0x08))
+        {
+            destination[0] = ((int16_t)rawData[1] << 8) | rawData[0];
+            destination[1] = ((int16_t)rawData[3] << 8) | rawData[2];
+            destination[2] = ((int16_t)rawData[5] << 8) | rawData[4];
+        }
+    }
+}
+
+void mpu9250::calibrateMag()
+{
+    mag_mode mode = m_params.mmode;
+
+    uint16_t ii = 0, sample_count = 0;
+    int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
+    int16_t mag_max[3] = {-32767, -32767, -32767}, mag_min[3] = {32767, 32767, 32767},
+            mag_temp[3] = {0, 0, 0};
+
+    Serial.println("# Mag Calibration: Wave device in a figure eight until done!");
+    delay(4000);
+
+    // shoot for ~fifteen seconds of mag data
+    if (mode == mag_mode::CONT_MEASUREMENT_1)
+    {
+        sample_count = 256; // at 8 Hz ODR, new mag data is available every 125 ms
+    }
+    else if (mode == mag_mode::CONT_MEASUREMENT_2)
+    {
+        sample_count = 3000; // at 100 Hz ODR, new mag data is available every 10 ms
+    }
+    else
+    {
+        Serial.println("# Mag calibration failed: only CONT_MEASUREMENT_1/2 supported.");
+        return;
+    }
+
+    for (ii = 0; ii < sample_count; ii++)
+    {
+        readMagData(mag_temp); // Read the mag data
+        for (int jj = 0; jj < 3; jj++)
+        {
+            if (mag_temp[jj] > mag_max[jj])
+                mag_max[jj] = mag_temp[jj];
+            if (mag_temp[jj] < mag_min[jj])
+                mag_min[jj] = mag_temp[jj];
+        }
+        if (mode == mag_mode::CONT_MEASUREMENT_1)
+        {
+            delay(135); // at 8 Hz ODR, new mag data is available every 125 ms
+        }
+        else
+        {
+            delay(12); // at 100 Hz ODR, new mag data is available every 10 ms
+        }
+    }
+
+    Serial.println("mag x min/max:");
+    Serial.println(mag_min[0]);
+    Serial.println(mag_max[0]);
+    Serial.println("mag y min/max:");
+    Serial.println(mag_min[1]);
+    Serial.println(mag_max[1]);
+    Serial.println("mag z min/max:");
+    Serial.println(mag_min[2]);
+    Serial.println(mag_max[2]);
+
+    // Get hard iron correction
+    mag_bias[0] = (mag_max[0] + mag_min[0]) / 2;
+    mag_bias[1] = (mag_max[1] + mag_min[1]) / 2;
+    mag_bias[2] = (mag_max[2] + mag_min[2]) / 2;
+
+    // save mag biases in G for main program
+    float mag_resolution = ::mpu9250::get_mag_resolution(m_params.mscale);
+    m_mag_bias[0] = (float)mag_bias[0] * mag_resolution * m_mag_sensitivity_adj[0];
+    m_mag_bias[1] = (float)mag_bias[1] * mag_resolution * m_mag_sensitivity_adj[1];
+    m_mag_bias[2] = (float)mag_bias[2] * mag_resolution * m_mag_sensitivity_adj[2];
+
+    Serial.println("mag bias x:");
+    Serial.println(m_mag_bias[0]);
+    Serial.println("mag bias y:");
+    Serial.println(m_mag_bias[1]);
+    Serial.println("mag bias z:");
+    Serial.println(m_mag_bias[2]);
+
+    // Get soft iron correction estimate
+    mag_scale[0] = (mag_max[0] - mag_min[0]) /
+                   2; // get average x axis max chord length in counts
+    mag_scale[1] = (mag_max[1] - mag_min[1]) /
+                   2; // get average y axis max chord length in counts
+    mag_scale[2] = (mag_max[2] - mag_min[2]) /
+                   2; // get average z axis max chord length in counts
+
+    float avg_rad = mag_scale[0] + mag_scale[1] + mag_scale[2];
+    avg_rad /= 3.0;
+
+    m_mag_scale[0] = avg_rad / ((float)mag_scale[0]);
+    m_mag_scale[1] = avg_rad / ((float)mag_scale[1]);
+    m_mag_scale[2] = avg_rad / ((float)mag_scale[2]);
+
+    Serial.println("mag x scale:");
+    Serial.println(m_mag_scale[0]);
+    Serial.println("mag y scale:");
+    Serial.println(m_mag_scale[1]);
+    Serial.println("mag z scale:");
+    Serial.println(m_mag_scale[2]);
+
+    Serial.println("# Mag Calibration done!");
+}
 
 } // namespace mpu9250
