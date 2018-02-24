@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
+//#include <Time.h>
 
 #include "ArduinoJson.hpp"
 #include "I2Cdev/I2Cdev.h"
@@ -33,6 +34,8 @@ float accelBias[3] = {0, 0, 0};
 // Manually collected calibration data
 float magBias[3] = {292.65, 298.14, -397.12}; // mG
 float magScale[3] = {1.01, 1.02, 0.97};
+
+uint16_t data_send_period_ms = 50;
 
 void setup()
 {
@@ -166,6 +169,8 @@ int read_light(uint8_t address)
 
 void loop()
 {
+    unsigned long start_send_time = millis();
+
     static const float accel_resolution =
             mpu9250::get_accel_resolution(imu.getParameters().ascale);
     static const float gyro_resolution =
@@ -221,7 +226,12 @@ void loop()
         root.printTo(Serial);
         Serial.println();
 
-        delay(1000);
+        uint32_t data_send_elapsed = millis() - start_send_time;
+        int32_t wait_time = data_send_period_ms - data_send_elapsed;
+        if (wait_time > 0)
+        {
+            delay(wait_time);
+        }
     }
 }
 
