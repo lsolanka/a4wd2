@@ -32,7 +32,7 @@ float gyroBias[3] = {0, 0, 0};
 float accelBias[3] = {0, 0, 0};
 
 // Manually collected calibration data
-float magBias[3] = {292.65, 298.14, -397.12}; // mG
+float magBias[3] = {125, 473, -403}; // mG
 float magScale[3] = {1.01, 1.02, 0.97};
 
 uint16_t data_send_period_ms = 50;
