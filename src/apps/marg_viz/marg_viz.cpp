@@ -3,7 +3,14 @@
 #include <queue>
 #include <thread>
 
+#include <boost/math/constants/constants.hpp>
+
+#include <eigen3/Eigen/Geometry>
+
+#include <MadgwickAHRS.h>
+
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/core/eigen.hpp>
 #include <opencv2/viz/vizcore.hpp>
 
 #include <sensor_reader/mpu9250.hpp>
@@ -14,10 +21,13 @@ using a4wd2::sensor_reader::sensor_reader;
 using a4wd2::sensor_reader::serial_string_line_reader;
 namespace sensors = a4wd2::sensor_reader::sensors;
 
+using boost::math::constants::pi;
+
 using namespace cv;
-using namespace std;
 
 static constexpr float FONT_SIZE = 12.f;
+
+static constexpr float DEG2RAD = 2. * pi<float>() / 360.;
 
 int main(int argc, char** argv)
 {
@@ -54,6 +64,10 @@ int main(int argc, char** argv)
                            FONT_SIZE);
     window.showWidget("sensor_text", sensor_text);
 
+    Madgwick madgwick;
+    madgwick.begin(1000.);
+    window.showWidget("sensor_coordinate_frame", viz::WCoordinateSystem());
+
     while (!window.wasStopped())
     {
         {
@@ -70,15 +84,33 @@ int main(int argc, char** argv)
             auto data = imu_data.front();
             imu_data.pop();
 
+            for (int i = 0; i < 50; ++i)
+            {
+                madgwick.update(data.g.x, -data.g.y, -data.g.z, -data.a.x, data.a.y,
+                                data.a.z, data.m.y, -data.m.x, data.m.z);
+            }
+
             std::stringstream ss;
             ss << "IMU accel: " << data.a << '\n';
             ss << "IMU gyro : " << data.g << '\n';
-            ss << "IMU mag  : " << data.m;
+            ss << "IMU mag  : " << data.m << '\n';
+            ss << "Madgwick : roll: " << madgwick.getRoll()
+               << ", pitch: " << madgwick.getPitch() << ", yaw: " << madgwick.getYaw()
+               << '\n';
             sensor_text.setText(ss.str());
 
-            window.showWidget("sensor_x",
-                              viz::WArrow(cv::Point3d(0, 0, 0),
-                                          -cv::Point3d(data.a.x, data.a.y, data.a.z)));
+            Eigen::Matrix3f rotation_matrix;
+            rotation_matrix = Eigen::AngleAxisf(-madgwick.getYaw() * DEG2RAD,
+                                                Eigen::Vector3f::UnitZ()) *
+                              Eigen::AngleAxisf(madgwick.getPitch() * DEG2RAD,
+                                                Eigen::Vector3f::UnitX()) *
+                              Eigen::AngleAxisf(madgwick.getRoll() * DEG2RAD,
+                                                Eigen::Vector3f::UnitY());
+            cv::Mat cv_rotation_matrix;
+            cv::eigen2cv(rotation_matrix, cv_rotation_matrix);
+
+            window.setWidgetPose("sensor_coordinate_frame",
+                                 cv::Affine3f(cv_rotation_matrix, cv::Vec3f(.5, .5, .5)));
         }
 
         window.spinOnce(10, true);
