@@ -86,17 +86,19 @@ int main(int argc, char** argv)
 
             for (int i = 0; i < 50; ++i)
             {
-                madgwick.update(data.g.x, -data.g.y, -data.g.z, -data.a.x, data.a.y,
-                                data.a.z, data.m.y, -data.m.x, data.m.z);
+                madgwick.update(-data.g.y, -data.g.x, -data.g.z, data.a.y, data.a.x,
+                                data.a.z, data.m.x, data.m.y, -data.m.z);
             }
 
             std::stringstream ss;
             ss << "IMU accel: " << data.a << '\n';
             ss << "IMU gyro : " << data.g << '\n';
             ss << "IMU mag  : " << data.m << '\n';
-            ss << "Madgwick : roll: " << madgwick.getRoll()
-               << ", pitch: " << madgwick.getPitch() << ", yaw: " << madgwick.getYaw()
-               << '\n';
+            ss << "Madgwick : roll: " << std::setw(7) << std::fixed
+               << std::setprecision(3) << madgwick.getRoll()
+               << ", pitch: " << std::setw(7) << std::fixed << std::setprecision(3)
+               << madgwick.getPitch() << ", yaw: " << std::setw(7) << std::fixed
+               << std::setprecision(3) << madgwick.getYaw() << '\n';
             sensor_text.setText(ss.str());
 
             Eigen::Matrix3f rotation_matrix;
