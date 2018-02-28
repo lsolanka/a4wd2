@@ -33,20 +33,6 @@ struct data_t
     uint8_t light;
 };
 
-//// Reduce range
-// for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
-//{
-//    Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
-//    Wire.write(RANGE);
-//    Wire.write(0x46);
-//    Wire.endTransmission();
-
-//    Wire.beginTransmission(SRF_BASE_ADDRESS + sensor_idx);
-//    Wire.write(GAIN);
-//    Wire.write(0x18);
-//    Wire.endTransmission();
-//}
-
 void triggerRanging(uint8_t address)
 {
     I2Cdev::writeByte(address, regs::addr::CMD, 0x51);
@@ -117,6 +103,7 @@ void printTo(const data_t& data, Print& stream)
 template <uint8_t BASE_ADDRESS, uint8_t NUM_SENSORS, uint16_t RANGE_TIME_MS>
 class sensor_list
 {
+    static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be > 0");
     static_assert(RANGE_TIME_MS > 0, "RANGE_TIME_MS must be > 0");
 
   public:
@@ -124,6 +111,20 @@ class sensor_list
         : last_range_time(0), ranging(false), current_sensor_idx(0),
           current_data_valid(false)
     {
+    }
+
+    /** Reduce sonar max. range, while also reducing ranging time. This allows for faster
+     * ranging.
+     *
+     * @note This is not called automatically.
+     */
+    void reduce_range()
+    {
+        for (int sensor_idx = 0; sensor_idx < NUM_SENSORS; ++sensor_idx)
+        {
+            I2Cdev::writeByte(BASE_ADDRESS + sensor_idx, regs::addr::RANGE, 0x46);
+            I2Cdev::writeByte(BASE_ADDRESS + sensor_idx, regs::addr::GAIN, 0x18);
+        }
     }
 
     void initiate_ranging()

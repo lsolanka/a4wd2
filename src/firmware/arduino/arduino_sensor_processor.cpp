@@ -17,7 +17,7 @@ static constexpr uint16_t IMU_JSON_BUFFER_SIZE = 300;
 mpu9250::timed_mpu9250<IMU_JSON_BUFFER_SIZE, IMU_READ_PERIOD_MS> imu;
 
 
-static constexpr uint16_t SRF08_RANGE_TIME_MS = 100.;
+static constexpr uint16_t SRF08_RANGE_TIME_MS = 50.;
 srf08::sensor_list<SRF_BASE_ADDRESS, NUM_SENSORS, SRF08_RANGE_TIME_MS> srf08_sensors;
 
 void setup()
@@ -27,6 +27,8 @@ void setup()
 
     Serial.begin(57600);
     Serial.println("# arduino_sensor_processor: start");
+
+    srf08_sensors.reduce_range();
 
     imu.init_and_calibrate(false);
     imu.print_whoami_to_serial();
