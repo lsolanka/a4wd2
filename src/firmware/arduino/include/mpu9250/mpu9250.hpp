@@ -33,6 +33,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ===============================================
+
+The code in this file was modified by Lukas Solanka.
+
 */
 
 #ifndef _MPU9250_H_
@@ -44,13 +47,13 @@ THE SOFTWARE.
 
 #include "registers.hpp"
 #include "types.hpp"
-//#include <avr/pgmspace.h>
 
 namespace mpu9250
 {
 
 class mpu9250
 {
+  public:
     struct parameters
     {
         uint8_t dev_addr;
@@ -65,9 +68,16 @@ class mpu9250
               mmode(mag_mode::CONT_MEASUREMENT_2)
         {
         }
+
+        parameters(uint8_t address)
+        {
+            (*this) = get_default();
+            dev_addr = address;
+        }
+
+        static parameters get_default() { return parameters{}; }
     };
 
-  public:
     /** Default constructor, uses default I2C address, 2g accelerometer, 250dps gyro
      * resolution.
      * @see MPU9250_DEFAULT_ADDRESS

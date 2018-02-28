@@ -2,6 +2,7 @@
 Language:        Cpp
 BasedOnStyle:  LLVM
 
+AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Allman
 BreakBeforeTernaryOperators: false
 ColumnLimit:     90
