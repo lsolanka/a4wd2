@@ -128,8 +128,8 @@ class timed_mpu9250 : public mpu9250
     float accelBias[3] = {0, 0, 0};
 
     // Manually collected calibration data with the sensor mounted on the chasis
-    float magBias[3] = {120, 490, -445}; // mG
-    float magScale[3] = {1.02, 1.00, 0.98};
+    float magBias[3] = {121, 460, -420}; // mG
+    float magScale[3] = {1.01, 1.01, 0.98};
 
     bool imu_initialized;
 
