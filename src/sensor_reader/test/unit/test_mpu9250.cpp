@@ -16,17 +16,17 @@ TEST(test_mpu9250, test_valid_data)
     sensors::mpu9250::data_t data;
     sensors::mpu9250 sensor{[&data](const auto& d) { data = d; }};
     ASSERT_TRUE(sensor.parse(test_values));
-    EXPECT_EQ(test_values["ax"], data.ax);
-    EXPECT_EQ(test_values["ay"], data.ay);
-    EXPECT_EQ(test_values["az"], data.az);
+    EXPECT_EQ(test_values["ax"], data.a.x);
+    EXPECT_EQ(test_values["ay"], data.a.y);
+    EXPECT_EQ(test_values["az"], data.a.z);
 
-    EXPECT_EQ(test_values["gx"], data.gx);
-    EXPECT_EQ(test_values["gy"], data.gy);
-    EXPECT_EQ(test_values["gz"], data.gz);
+    EXPECT_EQ(test_values["gx"], data.g.x);
+    EXPECT_EQ(test_values["gy"], data.g.y);
+    EXPECT_EQ(test_values["gz"], data.g.z);
 
-    EXPECT_EQ(test_values["mx"], data.mx);
-    EXPECT_EQ(test_values["my"], data.my);
-    EXPECT_EQ(test_values["mz"], data.mz);
+    EXPECT_EQ(test_values["mx"], data.m.x);
+    EXPECT_EQ(test_values["my"], data.m.y);
+    EXPECT_EQ(test_values["mz"], data.m.z);
 }
 
 TEST(test_mpu9250, test_missing_values)
