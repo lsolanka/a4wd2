@@ -73,4 +73,4 @@ std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t& data)
     return stream;
 }
 
-} // namespace a4wd2::sensor_reader::sensors
+}  // namespace a4wd2::sensor_reader::sensors

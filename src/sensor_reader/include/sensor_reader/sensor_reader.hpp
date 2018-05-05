@@ -41,7 +41,7 @@ class sensor_reader
      * The parsing will happen in the order of subscription (i.e. call to this
      * method).
      */
-    template <typename sensor_t, typename... Args>
+    template<typename sensor_t, typename... Args>
     void add_sensor(Args&&... args)
     {
         m_sensor_map.try_emplace(sensor_t::ID, sensor_list_t{});
@@ -64,4 +64,4 @@ class sensor_reader
     std::map<std::string, sensor_list_t> m_sensor_map;
 };
 
-} // namespace a4wd2::sensor_reader
+}  // namespace a4wd2::sensor_reader

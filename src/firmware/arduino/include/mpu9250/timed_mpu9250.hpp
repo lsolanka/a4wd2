@@ -7,15 +7,14 @@
 #include "ArduinoJson.hpp"
 #include "I2Cdev/I2Cdev.h"
 
-#include "mpu9250.hpp"
 #include <mpu9250/scale_conversions.hpp>
 #include <mpu9250/types.hpp>
+#include "mpu9250.hpp"
 
 namespace mpu9250
 {
-
-template <uint16_t JSON_BUFFER_SIZE, uint16_t READ_PERIOD_MS,
-          uint8_t ADDRESS = regs::addr::DEFAULT_ADDRESS>
+template<uint16_t JSON_BUFFER_SIZE, uint16_t READ_PERIOD_MS,
+         uint8_t ADDRESS = regs::addr::DEFAULT_ADDRESS>
 class timed_mpu9250 : public mpu9250
 {
     static_assert(JSON_BUFFER_SIZE > 0, "JSON_BUFFER_SIZE must be > 0");
@@ -23,7 +22,8 @@ class timed_mpu9250 : public mpu9250
 
   public:
     timed_mpu9250()
-        : mpu9250(mpu9250::parameters{ADDRESS}), last_send_time_ms(0),
+        : mpu9250(mpu9250::parameters{ADDRESS}),
+          last_send_time_ms(0),
           imu_initialized(false)
     {
     }
@@ -36,8 +36,9 @@ class timed_mpu9250 : public mpu9250
         {
             if (!imu_initialized)
             {
-                Serial.println("# Cannot read and send data. MPU9250 was not initialized "
-                               "or initialization failed!");
+                Serial.println(
+                        "# Cannot read and send data. MPU9250 was not initialized "
+                        "or initialization failed!");
                 return;
             }
 
@@ -59,8 +60,9 @@ class timed_mpu9250 : public mpu9250
         }
         else
         {
-            Serial.println("# Failed to initialize MPU9250. Data will not be read or "
-                           "sent over serial connection.");
+            Serial.println(
+                    "# Failed to initialize MPU9250. Data will not be read or "
+                    "sent over serial connection.");
             return;
         }
         Serial.println("# MPU9250 initialized for active data mode....");
@@ -128,7 +130,7 @@ class timed_mpu9250 : public mpu9250
     float accelBias[3] = {0, 0, 0};
 
     // Manually collected calibration data with the sensor mounted on the chasis
-    float magBias[3] = {121, 460, -420}; // mG
+    float magBias[3] = {121, 460, -420};  // mG
     float magScale[3] = {1.01, 1.01, 0.98};
 
     bool imu_initialized;
@@ -171,4 +173,4 @@ class timed_mpu9250 : public mpu9250
     }
 };
 
-} // namespace mpu9250
+}  // namespace mpu9250

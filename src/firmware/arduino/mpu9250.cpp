@@ -42,15 +42,18 @@ namespace addr = mpu9250::regs::addr;
 
 namespace mpu9250
 {
-
 mpu9250::mpu9250()
-    : m_params(), m_mag_sensitivity_adj{1.f, 1.f, 1.f}, m_mag_bias{0, 0, 0},
+    : m_params(),
+      m_mag_sensitivity_adj{1.f, 1.f, 1.f},
+      m_mag_bias{0, 0, 0},
       m_mag_scale{1.f, 1.f, 1.f}
 {
 }
 
 mpu9250::mpu9250(const parameters& params)
-    : m_params(params), m_mag_sensitivity_adj{1.f, 1.f, 1.f}, m_mag_bias{0, 0, 0},
+    : m_params(params),
+      m_mag_sensitivity_adj{1.f, 1.f, 1.f},
+      m_mag_bias{0, 0, 0},
       m_mag_scale{1.f, 1.f, 1.f}
 {
 }
@@ -66,14 +69,14 @@ void mpu9250::initialize()
 {
     // Wake up device
     I2Cdev::writeByte(m_params.dev_addr, addr::PWR_MGMT_1,
-                      0x00); // Clear sleep mode bit (6), enable all sensors
+                      0x00);  // Clear sleep mode bit (6), enable all sensors
     delay(100);
 
     // get stable time source
     I2Cdev::writeByte(m_params.dev_addr, addr::PWR_MGMT_1,
-                      0x01); // Auto select clock source to
-                             // be PLL gyroscope reference
-                             // if ready else
+                      0x01);  // Auto select clock source to
+                              // be PLL gyroscope reference
+                              // if ready else
     delay(200);
 
     // Configure Gyro and Thermometer
@@ -87,16 +90,15 @@ void mpu9250::initialize()
     I2Cdev::writeByte(m_params.dev_addr, addr::CONFIG, 0x03);
 
     // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
-    I2Cdev::writeByte(
-            m_params.dev_addr, addr::SMPLRT_DIV,
-            0x04); // Use a 200 Hz rate; a rate consistent with the filter update rate
-                   // determined inset in CONFIG above
+    I2Cdev::writeByte(m_params.dev_addr, addr::SMPLRT_DIV,
+                      0x04);  // Use a 200 Hz rate; a rate consistent with the filter
+                              // update rate determined inset in CONFIG above
 
     setFullScaleGyroRange(m_params.gscale);
     setFullScaleAccelRange(m_params.ascale);
 
     I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
-                      0x02); // set i2c bypass enable pin to true to access magnetometer
+                      0x02);  // set i2c bypass enable pin to true to access magnetometer
 }
 
 /** Set clock source setting.
@@ -275,7 +277,7 @@ void mpu9250::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
     getMotion6(ax, ay, az, gx, gy, gz);
 
     // read mag
-    //I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
+    // I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
     //                  0x02); // set i2c bypass enable pin to true to access magnetometer
     int16_t mag[3];
     if (readMagData(mag))
@@ -484,14 +486,14 @@ void mpu9250::setSleepEnabled(bool enabled)
 
 void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
 {
-    uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
+    uint8_t data[12];  // data array to hold accelerometer and gyro x, y, z, data
     uint16_t ii, packet_count, fifo_count;
     int32_t gyro_bias[3] = {0, 0, 0};
     int32_t accel_bias[3] = {0, 0, 0};
 
     // reset device
     I2Cdev::writeByte(m_params.dev_addr, addr::PWR_MGMT_1,
-                      0x80); // Write a one to bit 7 reset bit; toggle reset device
+                      0x80);  // Write a one to bit 7 reset bit; toggle reset device
     delay(100);
 
     // get stable time source; Auto select clock source to be PLL gyroscope reference if
@@ -503,64 +505,64 @@ void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
 
     // Configure device for bias calculation
     I2Cdev::writeByte(m_params.dev_addr, addr::INT_ENABLE,
-                      0x00);                                   // Disable all interrupts
-    I2Cdev::writeByte(m_params.dev_addr, addr::FIFO_EN, 0x00); // Disable FIFO
+                      0x00);                                    // Disable all interrupts
+    I2Cdev::writeByte(m_params.dev_addr, addr::FIFO_EN, 0x00);  // Disable FIFO
     I2Cdev::writeByte(m_params.dev_addr, addr::PWR_MGMT_1,
-                      0x00); // Turn on internal clock source
-    I2Cdev::writeByte(m_params.dev_addr, addr::I2C_MST_CTRL, 0x00); // Disable I2C master
+                      0x00);  // Turn on internal clock source
+    I2Cdev::writeByte(m_params.dev_addr, addr::I2C_MST_CTRL, 0x00);  // Disable I2C master
     I2Cdev::writeByte(m_params.dev_addr, addr::USER_CTRL,
-                      0x00); // Disable FIFO and I2C master modes
-    I2Cdev::writeByte(m_params.dev_addr, addr::USER_CTRL, 0x0C); // Reset FIFO and DMP
+                      0x00);  // Disable FIFO and I2C master modes
+    I2Cdev::writeByte(m_params.dev_addr, addr::USER_CTRL, 0x0C);  // Reset FIFO and DMP
     delay(15);
 
     // Configure MPU6050 gyro and accelerometer for bias calculation
     I2Cdev::writeByte(m_params.dev_addr, addr::CONFIG,
-                      0x01); // Set low-pass filter to 188 Hz
+                      0x01);  // Set low-pass filter to 188 Hz
     I2Cdev::writeByte(m_params.dev_addr, addr::SMPLRT_DIV,
-                      0x00); // Set sample rate to 1 kHz
+                      0x00);  // Set sample rate to 1 kHz
     I2Cdev::writeByte(
             m_params.dev_addr, addr::GYRO_CONFIG,
-            0x00); // Set gyro full-scale to 250 degrees per second, maximum sensitivity
+            0x00);  // Set gyro full-scale to 250 degrees per second, maximum sensitivity
     I2Cdev::writeByte(m_params.dev_addr, addr::ACCEL_CONFIG,
-                      0x00); // Set accelerometer full-scale to 2 g, maximum sensitivity
+                      0x00);  // Set accelerometer full-scale to 2 g, maximum sensitivity
 
-    uint16_t gyrosensitivity = 131;    // = 131 LSB/degrees/sec
-    uint16_t accelsensitivity = 16384; // = 16384 LSB/g
+    uint16_t gyrosensitivity = 131;     // = 131 LSB/degrees/sec
+    uint16_t accelsensitivity = 16384;  // = 16384 LSB/g
 
     // Configure FIFO to capture accelerometer and gyro data for bias calculation
-    I2Cdev::writeByte(m_params.dev_addr, addr::USER_CTRL, 0x40); // Enable FIFO
+    I2Cdev::writeByte(m_params.dev_addr, addr::USER_CTRL, 0x40);  // Enable FIFO
     I2Cdev::writeByte(m_params.dev_addr, addr::FIFO_EN,
-                      0x78); // Enable gyro and accelerometer
+                      0x78);  // Enable gyro and accelerometer
     // sensors for FIFO  (max size 512
     // bytes in MPU-9150)
-    delay(40); // accumulate 40 samples in 40 milliseconds = 480 bytes
+    delay(40);  // accumulate 40 samples in 40 milliseconds = 480 bytes
 
     // At end of sample accumulation, turn off FIFO sensor read
     I2Cdev::writeByte(m_params.dev_addr, addr::FIFO_EN,
-                      0x00); // Disable gyro and accelerometer sensors for FIFO
+                      0x00);  // Disable gyro and accelerometer sensors for FIFO
     I2Cdev::readBytes(m_params.dev_addr, addr::FIFO_COUNTH, 2,
-                      &data[0]); // read FIFO sample count
+                      &data[0]);  // read FIFO sample count
     fifo_count = ((uint16_t)data[0] << 8) | data[1];
     packet_count = fifo_count /
-                   12; // How many sets of full gyro and accelerometer data for averaging
+                   12;  // How many sets of full gyro and accelerometer data for averaging
 
     for (ii = 0; ii < packet_count; ii++)
     {
         int16_t accel_temp[3] = {0, 0, 0}, gyro_temp[3] = {0, 0, 0};
         I2Cdev::readBytes(m_params.dev_addr, addr::FIFO_R_W, 12,
-                          &data[0]); // read data for averaging
+                          &data[0]);  // read data for averaging
         accel_temp[0] =
                 (int16_t)(((int16_t)data[0] << 8) |
-                          data[1]); // Form signed 16-bit integer for each sample in FIFO
+                          data[1]);  // Form signed 16-bit integer for each sample in FIFO
         accel_temp[1] = (int16_t)(((int16_t)data[2] << 8) | data[3]);
         accel_temp[2] = (int16_t)(((int16_t)data[4] << 8) | data[5]);
         gyro_temp[0] = (int16_t)(((int16_t)data[6] << 8) | data[7]);
         gyro_temp[1] = (int16_t)(((int16_t)data[8] << 8) | data[9]);
         gyro_temp[2] = (int16_t)(((int16_t)data[10] << 8) | data[11]);
 
-        accel_bias[0] += (int32_t)accel_temp[0]; // Sum individual signed 16-bit biases
-                                                 // to get accumulated signed 32-bit
-                                                 // biases
+        accel_bias[0] += (int32_t)accel_temp[0];  // Sum individual signed 16-bit biases
+                                                  // to get accumulated signed 32-bit
+                                                  // biases
         accel_bias[1] += (int32_t)accel_temp[1];
         accel_bias[2] += (int32_t)accel_temp[2];
         gyro_bias[0] += (int32_t)gyro_temp[0];
@@ -568,7 +570,7 @@ void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
         gyro_bias[2] += (int32_t)gyro_temp[2];
     }
 
-    accel_bias[0] /= (int32_t)packet_count; // Normalize sums to get average count biases
+    accel_bias[0] /= (int32_t)packet_count;  // Normalize sums to get average count biases
     accel_bias[1] /= (int32_t)packet_count;
     accel_bias[2] /= (int32_t)packet_count;
     gyro_bias[0] /= (int32_t)packet_count;
@@ -578,7 +580,7 @@ void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
     if (accel_bias[2] > 0L)
     {
         accel_bias[2] -= (int32_t)accelsensitivity;
-    } // Remove gravity from the z-axis accelerometer bias calculation
+    }  // Remove gravity from the z-axis accelerometer bias calculation
     else
     {
         accel_bias[2] += (int32_t)accelsensitivity;
@@ -586,11 +588,11 @@ void mpu9250::calibrateAccelGyro(float* gyroBias, float* accelBias)
 
     // Construct the gyro biases for push to the hardware gyro bias registers, which are
     // reset to zero upon device startup
-    data[0] = (-gyro_bias[0] / 4 >> 8) & 0xFF; // Divide by 4 to get 32.9 LSB per deg/s
-                                               // to conform to expected bias input
-                                               // format
-    data[1] = (-gyro_bias[0] / 4) & 0xFF;      // Biases are additive, so change sign on
-                                               // calculated average gyro biases
+    data[0] = (-gyro_bias[0] / 4 >> 8) & 0xFF;  // Divide by 4 to get 32.9 LSB per deg/s
+                                                // to conform to expected bias input
+                                                // format
+    data[1] = (-gyro_bias[0] / 4) & 0xFF;       // Biases are additive, so change sign on
+                                                // calculated average gyro biases
     data[2] = (-gyro_bias[1] / 4 >> 8) & 0xFF;
     data[3] = (-gyro_bias[1] / 4) & 0xFF;
     data[4] = (-gyro_bias[2] / 4 >> 8) & 0xFF;
@@ -628,7 +630,7 @@ void mpu9250::initMagnetometer()
     auto adjust = [](uint8_t raw) { return (float)(raw - 128) / 256. + 1.f; };
 
     I2Cdev::writeByte(m_params.dev_addr, addr::INT_PIN_CFG,
-                      0x02); // set i2c bypass enable pin to true to access magnetometer
+                      0x02);  // set i2c bypass enable pin to true to access magnetometer
     uint8_t raw_data[3];
     I2Cdev::readBytes(addr::mag::ADDRESS, addr::mag::ASAX, 3, raw_data);
     m_mag_sensitivity_adj[0] = adjust(raw_data[0]);
@@ -654,7 +656,7 @@ bool mpu9250::readMagData(int16_t* destination)
         // Read the six raw data and ST2 registers sequentially into data
         // array
         I2Cdev::readBytes(addr::mag::ADDRESS, addr::mag::XOUT_L, 7, &rawData[0]);
-        uint8_t c = rawData[6]; // End data read by reading ST2 register
+        uint8_t c = rawData[6];  // End data read by reading ST2 register
 
         // Check if magnetic sensor overflow set, if not then report data
         if (!(c & 0x08))
@@ -681,11 +683,11 @@ void mpu9250::calibrateMag()
     // shoot for ~fifteen seconds of mag data
     if (mode == mag_mode::CONT_MEASUREMENT_1)
     {
-        sample_count = 256; // at 8 Hz ODR, new mag data is available every 125 ms
+        sample_count = 256;  // at 8 Hz ODR, new mag data is available every 125 ms
     }
     else if (mode == mag_mode::CONT_MEASUREMENT_2)
     {
-        sample_count = 3000; // at 100 Hz ODR, new mag data is available every 10 ms
+        sample_count = 3000;  // at 100 Hz ODR, new mag data is available every 10 ms
     }
     else
     {
@@ -695,21 +697,19 @@ void mpu9250::calibrateMag()
 
     for (ii = 0; ii < sample_count; ii++)
     {
-        readMagData(mag_temp); // Read the mag data
+        readMagData(mag_temp);  // Read the mag data
         for (int jj = 0; jj < 3; jj++)
         {
-            if (mag_temp[jj] > mag_max[jj])
-                mag_max[jj] = mag_temp[jj];
-            if (mag_temp[jj] < mag_min[jj])
-                mag_min[jj] = mag_temp[jj];
+            if (mag_temp[jj] > mag_max[jj]) mag_max[jj] = mag_temp[jj];
+            if (mag_temp[jj] < mag_min[jj]) mag_min[jj] = mag_temp[jj];
         }
         if (mode == mag_mode::CONT_MEASUREMENT_1)
         {
-            delay(135); // at 8 Hz ODR, new mag data is available every 125 ms
+            delay(135);  // at 8 Hz ODR, new mag data is available every 125 ms
         }
         else
         {
-            delay(12); // at 100 Hz ODR, new mag data is available every 10 ms
+            delay(12);  // at 100 Hz ODR, new mag data is available every 10 ms
         }
     }
 
@@ -743,11 +743,11 @@ void mpu9250::calibrateMag()
 
     // Get soft iron correction estimate
     mag_scale[0] = (mag_max[0] - mag_min[0]) /
-                   2; // get average x axis max chord length in counts
+                   2;  // get average x axis max chord length in counts
     mag_scale[1] = (mag_max[1] - mag_min[1]) /
-                   2; // get average y axis max chord length in counts
+                   2;  // get average y axis max chord length in counts
     mag_scale[2] = (mag_max[2] - mag_min[2]) /
-                   2; // get average z axis max chord length in counts
+                   2;  // get average z axis max chord length in counts
 
     float avg_rad = mag_scale[0] + mag_scale[1] + mag_scale[2];
     avg_rad /= 3.0;
@@ -766,4 +766,4 @@ void mpu9250::calibrateMag()
     Serial.println("# Mag Calibration done!");
 }
 
-} // namespace mpu9250
+}  // namespace mpu9250

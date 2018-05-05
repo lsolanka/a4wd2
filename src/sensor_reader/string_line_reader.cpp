@@ -26,4 +26,4 @@ serial_string_line_reader::serial_string_line_reader(const std::string& port,
 }
 
 std::istream& serial_string_line_reader::get_stream() { return m_istream; }
-} // namespace a4wd2::sensor_reader
+}  // namespace a4wd2::sensor_reader

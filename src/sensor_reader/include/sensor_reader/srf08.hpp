@@ -17,12 +17,12 @@ class srf08 : public sensor
   public:
     struct data_t
     {
-        uint8_t address; //!< Address on the I2C/TWI bus
-        uint16_t range;  //!< Range reading in cm
-        uint16_t light;  //!< Light reading (without units)
+        uint8_t address;  //!< Address on the I2C/TWI bus
+        uint16_t range;   //!< Range reading in cm
+        uint16_t light;   //!< Light reading (without units)
     };
 
-    static const std::string ID; //!< String used for classification
+    static const std::string ID;  //!< String used for classification
 
     /** Create the sensor listener with a callback function.
      * @param addr Sensor address on the TWI bus. Only address mathing this
@@ -43,4 +43,4 @@ void from_json(const nlohmann::json& j, srf08::data_t& data);
 
 std::ostream& operator<<(std::ostream& stream, const srf08::data_t& data);
 
-} // namespace a4wd2::sensor_reader::sensors
+}  // namespace a4wd2::sensor_reader::sensors

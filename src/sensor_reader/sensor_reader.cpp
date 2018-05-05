@@ -63,4 +63,4 @@ void sensor_reader::read_all()
     }
 }
 
-} // namespace a4wd2::sensor_reader
+}  // namespace a4wd2::sensor_reader

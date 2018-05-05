@@ -50,7 +50,6 @@ The code in this file was modified by Lukas Solanka.
 
 namespace mpu9250
 {
-
 class mpu9250
 {
   public:
@@ -63,8 +62,10 @@ class mpu9250
         mag_mode mmode;
 
         parameters()
-            : dev_addr(regs::addr::DEFAULT_ADDRESS), ascale(accel_scale::AFS_2G),
-              gscale(gyro_scale::GFS_250DPS), mscale(mag_scale::MFS_16BITS),
+            : dev_addr(regs::addr::DEFAULT_ADDRESS),
+              ascale(accel_scale::AFS_2G),
+              gscale(gyro_scale::GFS_250DPS),
+              mscale(mag_scale::MFS_16BITS),
               mmode(mag_mode::CONT_MEASUREMENT_2)
         {
         }
@@ -252,6 +253,6 @@ class mpu9250
     bool readMagData(int16_t* destination);
 };
 
-} // namespace mpu9250
+}  // namespace mpu9250
 
 #endif /* _MPU9250_H_ */

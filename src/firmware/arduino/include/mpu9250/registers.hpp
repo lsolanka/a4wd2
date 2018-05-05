@@ -4,65 +4,61 @@
 
 namespace mpu9250
 {
-
 namespace regs
 {
-
 namespace addr
 {
-
 namespace mag
 {
-
 // Magnetometer Registers
 static constexpr uint8_t ADDRESS = 0x0C;
-static constexpr uint8_t WHO_AM_I = 0x00; // should return 0x48
+static constexpr uint8_t WHO_AM_I = 0x00;  // should return 0x48
 static constexpr uint8_t INFO = 0x01;
-static constexpr uint8_t ST1 = 0x02;    // data ready status bit 0
-static constexpr uint8_t XOUT_L = 0x03; // data
+static constexpr uint8_t ST1 = 0x02;     // data ready status bit 0
+static constexpr uint8_t XOUT_L = 0x03;  // data
 static constexpr uint8_t XOUT_H = 0x04;
 static constexpr uint8_t YOUT_L = 0x05;
 static constexpr uint8_t YOUT_H = 0x06;
 static constexpr uint8_t ZOUT_L = 0x07;
 static constexpr uint8_t ZOUT_H = 0x08;
 static constexpr uint8_t ST2 =
-        0x09; // Data overflow bit 3 and data read error status bit 2
-static constexpr uint8_t CNTL = 0x0A;   // Power down (0000), single-measurement (0001),
-                                        // self-test (1000) and Fuse ROM (1111) modes on
-                                        // bits 3:0
-static constexpr uint8_t ASTC = 0x0C;   // Self test control
-static constexpr uint8_t I2CDIS = 0x0F; // I2C disable
-static constexpr uint8_t ASAX = 0x10;   // Fuse ROM x-axis sensitivity adjustment value
-static constexpr uint8_t ASAY = 0x11;   // Fuse ROM y-axis sensitivity adjustment value
-static constexpr uint8_t ASAZ = 0x12;   // Fuse ROM z-axis sensitivity adjustment value
-}
+        0x09;  // Data overflow bit 3 and data read error status bit 2
+static constexpr uint8_t CNTL = 0x0A;    // Power down (0000), single-measurement (0001),
+                                         // self-test (1000) and Fuse ROM (1111) modes on
+                                         // bits 3:0
+static constexpr uint8_t ASTC = 0x0C;    // Self test control
+static constexpr uint8_t I2CDIS = 0x0F;  // I2C disable
+static constexpr uint8_t ASAX = 0x10;    // Fuse ROM x-axis sensitivity adjustment value
+static constexpr uint8_t ASAY = 0x11;    // Fuse ROM y-axis sensitivity adjustment value
+static constexpr uint8_t ASAZ = 0x12;    // Fuse ROM z-axis sensitivity adjustment value
+}  // namespace mag
 
 static constexpr uint8_t ADDRESS_AD0_LOW =
-        0x68; // address pin low (GND), default for InvenSense evaluation board
-static constexpr uint8_t ADDRESS_AD0_HIGH = 0x69; // address pin high (VCC)
+        0x68;  // address pin low (GND), default for InvenSense evaluation board
+static constexpr uint8_t ADDRESS_AD0_HIGH = 0x69;  // address pin high (VCC)
 
 static constexpr uint8_t DEFAULT_ADDRESS = ADDRESS_AD0_LOW;
 
 static constexpr uint8_t XG_OFFS_TC =
-        0x00; //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
+        0x00;  //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 static constexpr uint8_t YG_OFFS_TC =
-        0x01; //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
+        0x01;  //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
 static constexpr uint8_t ZG_OFFS_TC =
-        0x02; //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
-static constexpr uint8_t X_FINE_GAIN = 0x03; //[7:0] X_FINE_GAIN
-static constexpr uint8_t Y_FINE_GAIN = 0x04; //[7:0] Y_FINE_GAIN
-static constexpr uint8_t Z_FINE_GAIN = 0x05; //[7:0] Z_FINE_GAIN
-static constexpr uint8_t XA_OFFS_H = 0x06;   //[15:0] XA_OFFS
+        0x02;  //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
+static constexpr uint8_t X_FINE_GAIN = 0x03;  //[7:0] X_FINE_GAIN
+static constexpr uint8_t Y_FINE_GAIN = 0x04;  //[7:0] Y_FINE_GAIN
+static constexpr uint8_t Z_FINE_GAIN = 0x05;  //[7:0] Z_FINE_GAIN
+static constexpr uint8_t XA_OFFS_H = 0x06;    //[15:0] XA_OFFS
 static constexpr uint8_t XA_OFFS_L_TC = 0x07;
-static constexpr uint8_t YA_OFFS_H = 0x08; //[15:0] YA_OFFS
+static constexpr uint8_t YA_OFFS_H = 0x08;  //[15:0] YA_OFFS
 static constexpr uint8_t YA_OFFS_L_TC = 0x09;
-static constexpr uint8_t ZA_OFFS_H = 0x0A; //[15:0] ZA_OFFS
+static constexpr uint8_t ZA_OFFS_H = 0x0A;  //[15:0] ZA_OFFS
 static constexpr uint8_t ZA_OFFS_L_TC = 0x0B;
-static constexpr uint8_t XG_OFFS_USRH = 0x13; //[15:0] XG_OFFS_USR
+static constexpr uint8_t XG_OFFS_USRH = 0x13;  //[15:0] XG_OFFS_USR
 static constexpr uint8_t XG_OFFS_USRL = 0x14;
-static constexpr uint8_t YG_OFFS_USRH = 0x15; //[15:0] YG_OFFS_USR
+static constexpr uint8_t YG_OFFS_USRH = 0x15;  //[15:0] YG_OFFS_USR
 static constexpr uint8_t YG_OFFS_USRL = 0x16;
-static constexpr uint8_t ZG_OFFS_USRH = 0x17; //[15:0] ZG_OFFS_USR
+static constexpr uint8_t ZG_OFFS_USRH = 0x17;  //[15:0] ZG_OFFS_USR
 static constexpr uint8_t ZG_OFFS_USRL = 0x18;
 static constexpr uint8_t SMPLRT_DIV = 0x19;
 static constexpr uint8_t CONFIG = 0x1A;
@@ -157,7 +153,7 @@ static constexpr uint8_t FIFO_COUNTL = 0x73;
 static constexpr uint8_t FIFO_R_W = 0x74;
 static constexpr uint8_t WHO_AM_I = 0x75;
 
-} // namespace addr
+}  // namespace addr
 
 static constexpr uint8_t TC_PWR_MODE_BIT = 7;
 static constexpr uint8_t TC_OFFSET_BIT = 6;
@@ -398,5 +394,5 @@ static constexpr uint8_t DMP_MEMORY_BANKS = 8;
 static constexpr uint16_t DMP_MEMORY_BANK_SIZE = 256;
 static constexpr uint8_t DMP_MEMORY_CHUNK_SIZE = 16;
 
-} // namespace regs
-} // namespace mpu9250
+}  // namespace regs
+}  // namespace mpu9250

@@ -19,23 +19,23 @@ class mpu9250 : public sensor
     {
         struct accel
         {
-            float x; //!< Accelerometer X [g]
-            float y; //!< Accelerometer Y [g]
-            float z; //!< Accelerometer Z [g]
+            float x;  //!< Accelerometer X [g]
+            float y;  //!< Accelerometer Y [g]
+            float z;  //!< Accelerometer Z [g]
         };
 
         struct gyro
         {
-            float x; //!< Gyro X [degrees/s]
-            float y; //!< Gyro Y [degrees/s]
-            float z; //!< Gyro Z [degrees/s]
+            float x;  //!< Gyro X [degrees/s]
+            float y;  //!< Gyro Y [degrees/s]
+            float z;  //!< Gyro Z [degrees/s]
         };
 
         struct mag
         {
-            float x; //!< Magnetometer X [mG]
-            float y; //!< Magnetometer Y [mG]
-            float z; //!< Magnetometer Z [mG]
+            float x;  //!< Magnetometer X [mG]
+            float y;  //!< Magnetometer Y [mG]
+            float z;  //!< Magnetometer Z [mG]
         };
 
         accel a;
@@ -43,7 +43,7 @@ class mpu9250 : public sensor
         mag m;
     };
 
-    static const std::string ID; //!< String used for classification
+    static const std::string ID;  //!< String used for classification
 
     /** Create the sensor listener with a callback function.
      * @param on_data Functor to call when data arrives.
@@ -64,4 +64,4 @@ std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::gyro& g);
 std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t::mag& m);
 std::ostream& operator<<(std::ostream& stream, const mpu9250::data_t& data);
 
-} // namespace a4wd2::sensor_reader::sensors
+}  // namespace a4wd2::sensor_reader::sensors

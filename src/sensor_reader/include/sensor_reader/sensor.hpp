@@ -13,4 +13,4 @@ class sensor
      */
     virtual bool parse(const nlohmann::json& j) = 0;
 };
-}
+}  // namespace a4wd2::sensor_reader::sensors

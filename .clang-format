@@ -1,7 +1,8 @@
 ---
 Language:        Cpp
-BasedOnStyle:  LLVM
+BasedOnStyle:  Google
 
+AccessModifierOffset: -2
 AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Allman
 BreakBeforeTernaryOperators: false
@@ -12,5 +13,6 @@ IndentWidth:     4
 IndentCaseLabels: true
 NamespaceIndentation: None
 PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
 Standard:        Cpp11
 ...

@@ -4,7 +4,6 @@
 
 namespace mpu9250
 {
-
 enum class accel_scale : uint8_t
 {
     AFS_2G = 0,
@@ -23,8 +22,8 @@ enum class gyro_scale : uint8_t
 
 enum class mag_scale : uint8_t
 {
-    MFS_14BITS = 0, // 0.6 mG per LSB
-    MFS_16BITS      // 0.15 mG per LSB
+    MFS_14BITS = 0,  // 0.6 mG per LSB
+    MFS_16BITS       // 0.15 mG per LSB
 };
 
 enum class mag_mode : uint8_t
@@ -38,4 +37,4 @@ enum class mag_mode : uint8_t
     FUSE_ROM_ACCESS = 0x0f
 };
 
-} // namespace mpu9250
+}  // namespace mpu9250

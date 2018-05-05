@@ -14,17 +14,16 @@ namespace regs
 {
 namespace addr
 {
-
 static constexpr uint8_t CMD =
-        0x00; // Command byte, values of 0 being sent with write have to be masked as
-              // a byte to stop them being misinterpreted as NULL this is a bug with
-              // arduino 1.0
-static constexpr uint8_t LIGHT = 0x01; // Byte to read light sensor
-static constexpr uint8_t RANGE = 0x02; // Byte for start of ranging data
+        0x00;  // Command byte, values of 0 being sent with write have to be masked as
+               // a byte to stop them being misinterpreted as NULL this is a bug with
+               // arduino 1.0
+static constexpr uint8_t LIGHT = 0x01;  // Byte to read light sensor
+static constexpr uint8_t RANGE = 0x02;  // Byte for start of ranging data
 static constexpr uint8_t GAIN = 0x01;
 
-} // namespace addr
-} // namespace regs
+}  // namespace addr
+}  // namespace regs
 
 struct data_t
 {
@@ -82,7 +81,7 @@ uint8_t read_light(uint8_t address)
 //    }
 //}
 
-template <typename Print>
+template<typename Print>
 void printTo(const data_t& data, Print& stream)
 {
     using namespace ArduinoJson;
@@ -100,7 +99,7 @@ void printTo(const data_t& data, Print& stream)
     stream.println();
 }
 
-template <uint8_t BASE_ADDRESS, uint8_t NUM_SENSORS, uint16_t RANGE_TIME_MS>
+template<uint8_t BASE_ADDRESS, uint8_t NUM_SENSORS, uint16_t RANGE_TIME_MS>
 class sensor_list
 {
     static_assert(NUM_SENSORS > 0, "NUM_SENSORS must be > 0");
@@ -108,7 +107,9 @@ class sensor_list
 
   public:
     sensor_list()
-        : last_range_time(0), ranging(false), current_sensor_idx(0),
+        : last_range_time(0),
+          ranging(false),
+          current_sensor_idx(0),
           current_data_valid(false)
     {
     }
@@ -180,4 +181,4 @@ class sensor_list
     bool current_data_valid;
 };
 
-} // namespace srf08
+}  // namespace srf08

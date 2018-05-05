@@ -9,4 +9,4 @@ do
 done
 
 echo "$all_files"
-clang-format-5.0 -i ${all_files}
+clang-format-6.0 -i ${all_files}

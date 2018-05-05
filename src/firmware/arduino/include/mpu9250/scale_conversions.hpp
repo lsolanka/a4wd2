@@ -6,7 +6,6 @@
 
 namespace mpu9250
 {
-
 inline float get_accel_resolution(accel_scale scale)
 {
     switch (scale)
@@ -67,14 +66,14 @@ inline float get_mag_resolution(mag_scale scale)
         // Possible magnetometer scales (and their register bit settings) are:
         // 14 bit resolution (0) and 16 bit resolution (1)
         case mag_scale::MFS_14BITS:
-            return 10. * 4912. / 8190.; // Proper scale to return milliGauss
+            return 10. * 4912. / 8190.;  // Proper scale to return milliGauss
 
         case mag_scale::MFS_16BITS:
-            return 10. * 4912. / 32760.0; // Proper scale to return milliGauss
+            return 10. * 4912. / 32760.0;  // Proper scale to return milliGauss
 
         default:
             return NAN;
     }
 }
 
-} // namespace mpu9250
+}  // namespace mpu9250

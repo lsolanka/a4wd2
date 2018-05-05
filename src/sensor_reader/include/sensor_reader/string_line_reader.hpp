@@ -40,4 +40,4 @@ class serial_string_line_reader : public boost::asio::streambuf
     std::istream m_istream;
 };
 
-} // namespace a4wd2::sensor_reader
+}  // namespace a4wd2::sensor_reader

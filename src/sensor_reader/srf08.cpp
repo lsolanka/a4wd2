@@ -45,4 +45,4 @@ std::ostream& operator<<(std::ostream& stream, const srf08::data_t& data)
            << data.light;
     return stream;
 }
-}
+}  // namespace a4wd2::sensor_reader::sensors
