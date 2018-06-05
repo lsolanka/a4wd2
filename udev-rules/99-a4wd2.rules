@@ -1,0 +1,2 @@
+KERNEL=="ttyACM[0-9]*", SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8037", SYMLINK+="arduino-micro"
+KERNEL=="ttyACM[0-9]*", SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2404", ATTRS{product}=="USB Roboclaw 2x7A", SYMLINK+="roboclaw-2x7A"

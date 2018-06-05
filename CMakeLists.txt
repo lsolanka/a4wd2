@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.19.240-1.tar.gz"
-    SHA1 "d22f66d963a2833700216c9d0b02a32e0442422a"
+    URL "https://github.com/lsolanka/hunter/archive/v0.21.6-rosdevel4.tar.gz"
+    SHA1 "a569b63bef4ea73e109d01c03891f91b8e32739c"
     LOCAL
 )
 
@@ -19,7 +19,8 @@ option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
 hunter_add_package(nlohmann_json)
 if (BUILD_ROS_COMPONENTS)
-    hunter_add_package(ros-ros_comm)
+    hunter_add_package(ros_comm)
+    hunter_add_package(ros_common_msgs)
 endif()
 hunter_add_package(roboclaw)
 
