@@ -30,4 +30,5 @@ hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION}
         WITH_OPENEXR=OFF
         WITH_JASPER=OFF
         WITH_WEBP=OFF
+        WITH_IPP=OFF
 ) 

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.21.6-rosdevel4.tar.gz"
-    SHA1 "a569b63bef4ea73e109d01c03891f91b8e32739c"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel7.tar.gz"
+    SHA1 "3d48fff4150ca3b0a9e19e6a095282e2636e22a4"
     LOCAL
 )
 
@@ -13,16 +13,19 @@ set(CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
 
 project(a4wd2 VERSION 0.0.1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CATKIN_BUILD_BINARY_PACKAGE ON)
 
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
+hunter_add_package(cxxopts)
 hunter_add_package(nlohmann_json)
+hunter_add_package(roboclaw)
+
 if (BUILD_ROS_COMPONENTS)
     hunter_add_package(ros_comm)
     hunter_add_package(ros_common_msgs)
 endif()
-hunter_add_package(roboclaw)
 
 find_package(Boost CONFIG REQUIRED COMPONENTS system log thread)
 
@@ -45,8 +48,38 @@ add_subdirectory(src/sensor_reader)
 
 # ROS components
 if (BUILD_ROS_COMPONENTS)
-    find_package(catkin REQUIRED COMPONENTS sensor_msgs roscpp)
-    catkin_package()
+    find_package(catkin REQUIRED COMPONENTS message_generation std_msgs sensor_msgs roscpp)
+
+    add_message_files(FILES
+        control_command.msg
+    )
+    generate_messages(DEPENDENCIES std_msgs sensor_msgs)
+
+    catkin_package(
+        CATKIN_DEPENDS std_msgs message_runtime
+    )
 
     add_subdirectory(src/sensor_publisher)
+    add_subdirectory(src/ros_controller)
+
+    # CPack
+    if(CMAKE_CROSSCOMPILING)
+        if("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf")
+            set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
+        else()
+            message(FATAL_ERROR
+                "CMAKE_LIBRARY_ARCHITECTURE is not set or not supported: "
+                "'${CMAKE_LIBRARY_ARCHITECTURE}'")
+        endif()
+    endif()
+    set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+    set(CPACK_PACKAGE_CONTACT "lsolanka AT gmail.com")
+    set(CPACK_PACKAGE_VENDOR "Lukas Solanka")
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_PACKAGE_FILE_NAME
+        "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+    set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+    set(CPACK_GENERATOR "DEB")
+
+    include(CPack)
 endif()

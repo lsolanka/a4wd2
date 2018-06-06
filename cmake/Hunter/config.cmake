@@ -25,3 +25,11 @@ include(hunter_user_error)
 # NOTE: no names with spaces!
 
 hunter_config(Boost VERSION 1.65.1)
+hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION}
+    CMAKE_ARGS
+        WITH_OPENEXR=OFF
+        WITH_JASPER=OFF
+        WITH_WEBP=OFF
+        WITH_QT=ON
+        WITH_OPENGL=ON
+)
