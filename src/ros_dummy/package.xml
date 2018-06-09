@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ros_dummy</name>
+  <version>0.0.1</version>
+  <description>Dummy ROS package to install setup.bash</description>
+
+  <maintainer email="l_s_o_l_a_n_k_a@gmail.com">Lukas Solanka</maintainer>
+  <license>BSD</license>
+  <author >Lukas Solanka</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
