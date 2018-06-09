@@ -1,0 +1,10 @@
+<launch>
+    <machine name="chassis-main"
+        address="lynxmotion-wifi"
+        env-loader="/opt/a4wd2/a4wd2_env.sh"
+        default="never" />
+
+    <node pkg="a4wd2" name="ros_controller" type="ros_controller" machine="chassis-main" args="-v debug" />
+
+    <node pkg="a4wd2" name="key_controller" type="key_controller" />
+</launch>

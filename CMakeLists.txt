@@ -81,5 +81,9 @@ if (BUILD_ROS_COMPONENTS)
     set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
     set(CPACK_GENERATOR "DEB")
 
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+        "${CMAKE_CURRENT_SOURCE_DIR}/deb/postinst;${CMAKE_CURRENT_SOURCE_DIR}/deb/prerm")
+
+    add_subdirectory(system)
     include(CPack)
 endif()

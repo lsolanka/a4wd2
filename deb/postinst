@@ -1,0 +1,4 @@
+#! /bin/bash
+
+systemctl enable a4wd2-roscore.service
+systemctl start a4wd2-roscore.service

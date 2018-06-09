@@ -1,0 +1,4 @@
+#! /bin/bash
+
+systemctl stop a4wd2-roscore.service
+systemctl disable a4wd2-roscore.service

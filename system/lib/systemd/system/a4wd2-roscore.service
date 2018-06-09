@@ -1,0 +1,13 @@
+[Unit]
+Description=ROScore on the lynxmotion A4WD2 robot
+After=systemd-user-sessions.service
+
+[Service]
+Type=simple
+User=lukas
+ExecStart=/opt/a4wd2/a4wd2_env.sh roscore
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=multi-user.target
