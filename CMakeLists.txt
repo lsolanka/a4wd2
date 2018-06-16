@@ -18,7 +18,7 @@ set(CATKIN_BUILD_BINARY_PACKAGE ON)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
-hunter_add_package(Boost COMPONENTS program_options system)
+hunter_add_package(Boost COMPONENTS system)
 hunter_add_package(cxxopts)
 hunter_add_package(nlohmann_json)
 hunter_add_package(roboclaw)
@@ -41,7 +41,7 @@ if(BUILD_TESTS)
     endmacro()
 endif()
 
-find_package(Boost CONFIG REQUIRED COMPONENTS program_options system)
+find_package(Boost CONFIG REQUIRED COMPONENTS system)
 find_package(spdlog CONFIG REQUIRED)
 
 add_subdirectory(src/sensor_reader)
