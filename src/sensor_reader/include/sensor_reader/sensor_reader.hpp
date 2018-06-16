@@ -8,6 +8,8 @@
 #include <string>
 #include <utility>
 
+#include <spdlog/spdlog.h>
+
 #include <sensor_reader/sensor.hpp>
 
 namespace a4wd2::sensor_reader
@@ -25,7 +27,15 @@ class sensor_reader
   public:
     /** Create the reader with a specified input stream used for reading
      * line-based data. */
-    sensor_reader(std::istream& input_stream) : m_input_stream(input_stream) {}
+    sensor_reader(std::istream& input_stream) : m_input_stream(input_stream)
+    {
+        m_logger = spdlog::get("sensor_reader");
+        if (!m_logger)
+        {
+            m_logger = spdlog::stdout_logger_mt("sensor_reader");
+            m_logger->warn("Could not get a 'sensor_reader' logger. Creating one.");
+        }
+    }
 
     /** Register a new sensor subscriber.
      *
@@ -62,6 +72,7 @@ class sensor_reader
 
     std::istream& m_input_stream;
     std::map<std::string, sensor_list_t> m_sensor_map;
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 }  // namespace a4wd2::sensor_reader

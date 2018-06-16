@@ -15,10 +15,10 @@ if (NOT HUNTER_ENABLED)
     target_compile_definitions(sensor_reader PUBLIC BOOST_LOG_DYN_LINK)
     set(_boost_libs ${Boost_LIBRARIES})
 else()
-    set(_boost_libs Boost::boost Boost::log Boost::system Boost::thread)
+    set(_boost_libs Boost::boost Boost::system)
 endif()
 target_link_libraries(sensor_reader
-                      nlohmann_json ${_boost_libs})
+                      nlohmann_json ${_boost_libs} spdlog::spdlog)
 
 if(BUILD_TESTS)
     add_gtest(test_sensor_reader test/unit/test_sensor_reader.cpp)

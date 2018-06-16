@@ -11,6 +11,7 @@ CommentPragmas:  '^ IWYU pragma:'
 ContinuationIndentWidth: 8
 IndentWidth:     4
 IndentCaseLabels: true
+KeepEmptyLinesAtTheStartOfBlocks: true
 NamespaceIndentation: None
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false

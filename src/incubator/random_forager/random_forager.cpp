@@ -13,7 +13,6 @@
 #include <roboclaw/io/io.hpp>
 #include <roboclaw/io/read_commands.hpp>
 #include <roboclaw/io/write_commands.hpp>
-#include <roboclaw/logging.hpp>
 
 #include <sensor_reader/mpu9250.hpp>
 #include <sensor_reader/sensor_reader.hpp>
@@ -261,62 +260,37 @@ int main(int argc, char** argv)
     return 0;
 }
 
-BOOST_LOG_GLOBAL_LOGGER_INIT(logger, logger_t)
-{
-    namespace expr = boost::log::expressions;
-    logger_t lg;
-    boost::log::add_common_attributes();
-    boost::log::add_file_log(
-            boost::log::keywords::file_name = "log.txt",
-            boost::log::keywords::format =
-                    (expr::stream
-                     << expr::format_date_time<boost::posix_time::ptime>(
-                                "TimeStamp", "%Y-%m-%d %H:%M:%S")
-                     << " ["
-                     << expr::attr<boost::log::trivial::severity_level>("Severity")
-                     << "] " << expr::smessage));
-    boost::log::add_console_log(
-            std::cout,
-            boost::log::keywords::format =
-                    (expr::stream
-                     << expr::format_date_time<boost::posix_time::ptime>(
-                                "TimeStamp", "%Y-%m-%d %H:%M:%S")
-                     << " ["
-                     << expr::attr<boost::log::trivial::severity_level>("Severity")
-                     << "] " << expr::smessage));
-    return lg;
-}
-
 bool setup_verbosity(const po::variables_map& vm)
 {
-    int min_verbosity_level = boost::log::trivial::fatal;
+    auto lg_roboclaw = spdlog::stdout_color_mt("roboclaw");
+    spdlog::set_async_mode(8192);
 
     if (vm.count("verbosity"))
     {
         auto verbosity = vm["verbosity"].as<std::string>();
         if (verbosity == "disabled")
         {
-            min_verbosity_level = boost::log::trivial::error;
+            spdlog::set_level(spdlog::level::off);
         }
         else if (verbosity == "debug")
         {
-            min_verbosity_level = boost::log::trivial::debug;
+            spdlog::set_level(spdlog::level::debug);
         }
         else if (verbosity == "info")
         {
-            min_verbosity_level = boost::log::trivial::info;
+            spdlog::set_level(spdlog::level::info);
         }
         else if (verbosity == "warning")
         {
-            min_verbosity_level = boost::log::trivial::warning;
+            spdlog::set_level(spdlog::level::warn);
         }
         else if (verbosity == "error")
         {
-            min_verbosity_level = boost::log::trivial::error;
+            spdlog::set_level(spdlog::level::err);
         }
-        else if (verbosity == "fatal")
+        else if (verbosity == "critical")
         {
-            min_verbosity_level = boost::log::trivial::fatal;
+            spdlog::set_level(spdlog::level::critical);
         }
         else
         {
@@ -324,9 +298,6 @@ bool setup_verbosity(const po::variables_map& vm)
             return false;
         }
     }
-
-    boost::log::core::get()->set_filter(boost::log::trivial::severity >=
-                                        min_verbosity_level);
 
     return true;
 }

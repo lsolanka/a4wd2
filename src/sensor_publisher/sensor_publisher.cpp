@@ -63,6 +63,9 @@ int main(int argc, char* argv[])
     }
     ros::init(argc, argv, "sensor_publisher");
 
+    auto lg_sensor_reader = spdlog::stdout_color_mt("sensor_reader");
+    spdlog::set_async_mode(8192);
+
     const char* port_name = argv[1];
     serial_string_line_reader serial_reader(port_name, 9600);
     sensor_reader reader{serial_reader.get_stream()};

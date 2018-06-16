@@ -16,11 +16,11 @@ hunter_add_package(Boost COMPONENTS program_options system log filesystem thread
 
 find_package(nlohmann_json)
 find_package(roboclaw)
-find_package(Boost CONFIG REQUIRED COMPONENTS program_options system log filesystem thread)
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options system)
 
 
 add_subdirectory(../../sensor_reader sensor_reader)
 
 add_executable(random_forager random_forager.cpp)
 target_link_libraries(random_forager nlohmann_json roboclaw::roboclaw sensor_reader Boost::boost
-    Boost::program_options Boost::system Boost::log Boost::filesystem Boost::thread)
+    Boost::program_options Boost::system)

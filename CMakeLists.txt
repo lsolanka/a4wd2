@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel7.tar.gz"
-    SHA1 "3d48fff4150ca3b0a9e19e6a095282e2636e22a4"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel8.tar.gz"
+    SHA1 "8fdb5c3e46314cbbfdd5453737962ea71121f601"
     LOCAL
 )
 
@@ -18,18 +18,16 @@ set(CATKIN_BUILD_BINARY_PACKAGE ON)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
+hunter_add_package(Boost COMPONENTS program_options system)
 hunter_add_package(cxxopts)
 hunter_add_package(nlohmann_json)
 hunter_add_package(roboclaw)
+hunter_add_package(spdlog)
 
 if (BUILD_ROS_COMPONENTS)
     hunter_add_package(ros_comm)
     hunter_add_package(ros_common_msgs)
 endif()
-
-find_package(Boost CONFIG REQUIRED COMPONENTS system log thread)
-
-include_directories(${Boost_INCLUDE_DIRS})
 
 if(BUILD_TESTS)
     enable_testing()
@@ -43,8 +41,10 @@ if(BUILD_TESTS)
     endmacro()
 endif()
 
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options system)
+find_package(spdlog CONFIG REQUIRED)
+
 add_subdirectory(src/sensor_reader)
-#add_subdirectory(src/incubator/random_forager)
 
 # ROS components
 if (BUILD_ROS_COMPONENTS)
