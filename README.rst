@@ -19,12 +19,18 @@ Acknowledgements
 ================
 
 * ArduinoJson_
-
-* I2Cdevlib_
-
+* fmtlib_
 * Some code for the IMU sensor was adopted from Grove_.
-
+* Hunter_
+* I2Cdevlib_
+* ROS_
+* spdlog_
+* Everyone else I've forgotten to mention :-)
 
 .. _ArduinoJson: https://github.com/bblanchon/ArduinoJson
-.. _I2Cdevlib: https://github.com/jrowberg/i2cdevlib
+.. _fmtlib: http://fmtlib.net
 .. _Grove: https://github.com/SeeedDocument/Grove-IMU_9DOF_v2.0
+.. _Hunter: https://github.com/ruslo/hunter
+.. _I2Cdevlib: https://github.com/jrowberg/i2cdevlib
+.. _ROS: https://www.ros.org
+.. _spdlog: https://github.com/gabime/spdlog
