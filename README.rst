@@ -1,5 +1,14 @@
-.. include:: system/etc/update-motd.d/rover-ascii.txt
-    :literal:
+::
+
+                   Oo           o          `O o.OOOo.                           
+                  o  O   o   O  O           o  O    `o  .oOOo.                  
+                 O    o  O   o  o           O  o      O      O                  
+                oOooOoOo o   o  O           O  O      o      o                  
+                o      O OooOOo o     o     o  o      O     O'                  
+                O      o     O  O     O     O  O      o    O                    
+                o      O     o  `o   O o   O'  o    .O'  .O                     
+ .              O.     O     O   `OoO' `OoO'   OooOO'   oOoOoO                  
+
 
 A4WD2 Robot platform project
 ============================
