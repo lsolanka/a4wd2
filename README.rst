@@ -1,3 +1,6 @@
+.. include:: system/etc/update-motd.d/rover-ascii.txt
+    :literal:
+
 A4WD2 Robot platform project
 ============================
 
