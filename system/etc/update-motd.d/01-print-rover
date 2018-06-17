@@ -1,0 +1,3 @@
+#! /bin/bash
+
+cat /etc/update-motd.d/rover-ascii.txt

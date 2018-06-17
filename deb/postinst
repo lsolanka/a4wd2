@@ -1,4 +1,19 @@
 #! /bin/bash
 
+function make_non_executable()
+{
+    local file=$1
+    echo "making $file non-executable..."
+    [ -f "$file" ] && chmod a-x $file
+}
+
 systemctl enable a4wd2-roscore.service
 systemctl start a4wd2-roscore.service
+
+make_non_executable /etc/update-motd.d/00-header
+make_non_executable /etc/update-motd.d/10-help-text
+make_non_executable /etc/update-motd.d/50-motd-news
+make_non_executable /etc/update-motd.d/51-cloudguest
+make_non_executable /etc/update-motd.d/80-esm
+make_non_executable /etc/update-motd.d/91-release-upgrade
+make_non_executable /etc/update-motd.d/95-hwe-eol
