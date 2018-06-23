@@ -13,6 +13,7 @@ systemctl start a4wd2-roscore.service
 make_non_executable /etc/update-motd.d/00-header
 make_non_executable /etc/update-motd.d/10-help-text
 make_non_executable /etc/update-motd.d/50-motd-news
+make_non_executable /etc/update-motd.d/50-landscape-sysinfo
 make_non_executable /etc/update-motd.d/51-cloudguest
 make_non_executable /etc/update-motd.d/80-esm
 make_non_executable /etc/update-motd.d/91-release-upgrade

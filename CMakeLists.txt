@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel8.tar.gz"
-    SHA1 "8fdb5c3e46314cbbfdd5453737962ea71121f601"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel9.tar.gz"
+    SHA1 "adbb26aec1758a6dbc77028e37e90dd6a1a48bac"
     LOCAL
 )
 

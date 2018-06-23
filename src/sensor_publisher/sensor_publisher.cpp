@@ -1,6 +1,9 @@
 #include <cmath>
 #include <iostream>
 
+#include <spdlog/spdlog.h>
+#include <fmt/ostream.h>
+
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
@@ -64,6 +67,7 @@ int main(int argc, char* argv[])
     ros::init(argc, argv, "sensor_publisher");
 
     auto lg_sensor_reader = spdlog::stdout_color_mt("sensor_reader");
+    auto logger = spdlog::stdout_color_mt("sensor_publisher");
     spdlog::set_async_mode(8192);
 
     const char* port_name = argv[1];
@@ -83,14 +87,14 @@ int main(int argc, char* argv[])
         r.header.stamp = ros::Time::now();
         r.header.frame_id = "range_fr";
         range_pub.publish(r);
-        ROS_DEBUG_STREAM("sensor_publisher - sonar data: " << data);
+        logger->debug("sonar data: {}", data);
     });
     reader.add_sensor<sensors::srf08>(0x71, [&](const auto& data) {
         sensor_msgs::Range r = range_from_srf08(data);
         r.header.stamp = ros::Time::now();
         r.header.frame_id = "range_fl";
         range_pub.publish(r);
-        ROS_DEBUG_STREAM("sensor_publisher - sonar data: " << data);
+        logger->debug("sonar data: {}", data);
     });
 
     // MPU9250 IMU + MAG data (publishing only IMU data)
@@ -99,7 +103,7 @@ int main(int argc, char* argv[])
         imu_data.header.stamp = ros::Time::now();
         imu_data.header.frame_id = "imu_frame";
         imu_pub.publish(imu_data);
-        ROS_DEBUG_STREAM("sensor_publisher - IMU data: " << data);
+        logger->debug("IMU data: {}", data);
     });
 
     reader.read_all();
