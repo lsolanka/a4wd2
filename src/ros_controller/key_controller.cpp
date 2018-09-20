@@ -1,10 +1,7 @@
-#include <opencv2/highgui.hpp>
-#include <opencv2/viz/vizcore.hpp>
 #include <ros/ros.h>
+#include <opencv2/highgui.hpp>
 
 #include <a4wd2/control_command.h>
-
-namespace viz = cv::viz;
 
 static constexpr int QUEUE_SIZE = 100;
 static constexpr int SPEED_QPPS = 10000;
@@ -14,8 +11,6 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "key_controller");
     ros::NodeHandle nh;
     cv::namedWindow("Test window");
-    viz::Viz3d window("Robot position");
-    window.showWidget("Coordinate Widget", viz::WCoordinateSystem());
 
     ros::Publisher command_publisher =
             nh.advertise<a4wd2::control_command>("/control", QUEUE_SIZE, false);
@@ -23,9 +18,9 @@ int main(int argc, char** argv)
     a4wd2::control_command cmd;
     cmd.speed_qpps = SPEED_QPPS;
 
-    while (!window.wasStopped())
+    int key = -1;
+    do
     {
-        int key = -1;
         key = cv::waitKey(500);
         std::cout << "key: '" << key << std::endl;
         switch (key)
@@ -58,12 +53,12 @@ int main(int argc, char** argv)
                 cmd.speed_qpps = 0;
                 cmd.cmd = a4wd2::control_command::FORWARD;
                 command_publisher.publish(cmd);
+                break;
 
             default:
                 break;
         }
-        window.spinOnce(10, true);
-    }
+    } while (key != 'q');
 
     cmd.speed_qpps = 0;
     cmd.cmd = a4wd2::control_command::FORWARD;

@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 #include <cxxopts.hpp>
 
+#include <a4wd2/config.h>
 #include <a4wd2/control_command.h>
 
 #include <roboclaw/io/io.hpp>
@@ -30,7 +31,6 @@ static constexpr int QUEUE_SIZE = 100;
 
 void signal_handler(int signal);
 void interruption_point(serial_controller& controller);
-bool setup_verbosity(const cxxopts::ParseResult& options);
 
 void read_info(roboclaw::io::serial_controller& controller);
 
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
         std::cout << options.help();
         return EXIT_SUCCESS;
     }
-    if (!setup_verbosity(options_result))
+    if (!a4wd2::config::setup_verbosity(options_result))
     {
         std::cout << options.help();
         return EXIT_FAILURE;
@@ -186,47 +186,5 @@ void read_info(roboclaw::io::serial_controller& controller)
     ROS_INFO_STREAM(
             log_prefix << "M2 velocity PID: "
                        << get_string(controller.read<read_commands::m2_velocity_pid>()));
-}
-
-bool setup_verbosity(const cxxopts::ParseResult& options)
-{
-    auto lg_roboclaw = spdlog::stdout_color_mt("roboclaw");
-    spdlog::set_async_mode(8192);
-
-    if (options.count("verbosity"))
-    {
-        auto verbosity = options["verbosity"].as<std::string>();
-        if (verbosity == "disabled")
-        {
-            spdlog::set_level(spdlog::level::off);
-        }
-        else if (verbosity == "debug")
-        {
-            spdlog::set_level(spdlog::level::debug);
-        }
-        else if (verbosity == "info")
-        {
-            spdlog::set_level(spdlog::level::info);
-        }
-        else if (verbosity == "warning")
-        {
-            spdlog::set_level(spdlog::level::warn);
-        }
-        else if (verbosity == "error")
-        {
-            spdlog::set_level(spdlog::level::err);
-        }
-        else if (verbosity == "critical")
-        {
-            spdlog::set_level(spdlog::level::critical);
-        }
-        else
-        {
-            std::cout << "invalid verbosity value: " << verbosity << std::endl;
-            return false;
-        }
-    }
-
-    return true;
 }
 

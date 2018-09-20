@@ -16,5 +16,27 @@
           required="true"
           args="/dev/arduino-micro" />
 
+    <!-- rplidar laser scanner -->
+    <node name="rplidarNode"
+          pkg="rplidar_ros"
+          type="rplidarNode"
+          machine="chassis-main"
+          required="true" >
+        <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
+        <param name="serial_baudrate"     type="int"    value="115200"/><!--A1/A2 -->
+        <param name="frame_id"            type="string" value="laser"/>
+        <param name="inverted"            type="bool"   value="false"/>
+        <param name="angle_compensate"    type="bool"   value="true"/>
+    </node>
+
+    <node pkg="rosbag" type="record" name="record_all"
+          args="record -o lynxmotion_record_all --lz4 -a"
+          machine="chassis-main" required="true" />
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="laser_transform"
+          args="0 0 0 0 0 0 robot laser"
+          machine="chassis-main" required="true" />
+
     <node pkg="a4wd2" name="key_controller" type="key_controller" />
+    <node pkg="a4wd2" name="a4wd2_visualisation" type="a4wd2_visualisation" />
 </launch>

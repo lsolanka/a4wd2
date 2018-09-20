@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel9.tar.gz"
-    SHA1 "adbb26aec1758a6dbc77028e37e90dd6a1a48bac"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel14.tar.gz"
+    SHA1 "83621a747b819f47effc8684e17d2a1415355cac"
     LOCAL
 )
 
@@ -20,6 +20,7 @@ option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
 hunter_add_package(Boost COMPONENTS system)
 hunter_add_package(cxxopts)
+hunter_add_package(MRPT)
 hunter_add_package(nlohmann_json)
 hunter_add_package(roboclaw)
 hunter_add_package(spdlog)
@@ -42,8 +43,10 @@ if(BUILD_TESTS)
 endif()
 
 find_package(Boost CONFIG REQUIRED COMPONENTS system)
+find_package(cxxopts CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
+add_subdirectory(src/config)
 add_subdirectory(src/sensor_reader)
 
 # ROS components
@@ -61,6 +64,7 @@ if (BUILD_ROS_COMPONENTS)
 
     add_subdirectory(src/sensor_publisher)
     add_subdirectory(src/ros_controller)
+    add_subdirectory(src/visualisation)
 
     # CPack
     if(CMAKE_CROSSCOMPILING)
