@@ -36,7 +36,7 @@ void read_info(roboclaw::io::serial_controller& controller);
 
 class StopTimer
 {
-  public:
+public:
     StopTimer(ros::NodeHandle nh, std::chrono::milliseconds timeout,
               serial_controller& controller)
         : m_controller(controller)
@@ -57,10 +57,15 @@ class StopTimer
         m_timer.start();
     }
 
-  private:
+private:
     ros::Timer m_timer;
     serial_controller& m_controller;
 };
+
+bool forward_movement_or_stopped(int32_t speed_right, int32_t speed_left)
+{
+    return speed_right + speed_left >= 0;
+}
 
 int main(int argc, char** argv)
 {
@@ -95,30 +100,80 @@ int main(int argc, char** argv)
     std::string port_name = options_result["port"].as<std::string>();
     roboclaw::io::serial_controller controller(port_name, 0x80);
     read_info(controller);
-    StopTimer stopTimer(nh, 500ms, controller);
+
+    // StopTimer stopTimer(nh, 500ms, controller);
+    int32_t speed_left = 0;
+    int32_t speed_right = 0;
 
     boost::function<void(const a4wd2::control_command&)> callback =
-            [&controller, &stopTimer](const a4wd2::control_command& cmd) {
+            [&controller, &speed_left, &speed_right](const a4wd2::control_command& cmd) {
                 switch (cmd.cmd)
                 {
                     case a4wd2::control_command::FORWARD:
-                        controller.write(write_commands::m1_m2_drive_qpps{
-                                cmd.speed_qpps, cmd.speed_qpps});
-                        break;
+                    {
+                        bool forward_before =
+                                forward_movement_or_stopped(speed_right, speed_left);
+                        speed_left += cmd.speed_qpps;
+                        speed_right += cmd.speed_qpps;
+                        bool forward_after =
+                                forward_movement_or_stopped(speed_right, speed_left);
+                        if (forward_after != forward_before)
+                        {
+                            std::swap(speed_left, speed_right);
+                        }
+                    }
+                    break;
 
                     case a4wd2::control_command::BACKWARD:
-                        controller.write(write_commands::m1_m2_drive_qpps{
-                                -cmd.speed_qpps, -cmd.speed_qpps});
-                        break;
+                    {
+                        bool forward_before =
+                                forward_movement_or_stopped(speed_right, speed_left);
+                        speed_left -= cmd.speed_qpps;
+                        speed_right -= cmd.speed_qpps;
+                        bool forward_after =
+                                forward_movement_or_stopped(speed_right, speed_left);
+                        if (forward_after != forward_before)
+                        {
+                            std::swap(speed_left, speed_right);
+                        }
+                    }
+                    break;
 
                     case a4wd2::control_command::LEFT:
-                        controller.write(write_commands::m1_m2_drive_qpps{
-                                cmd.speed_qpps, -cmd.speed_qpps});
+                        if (forward_movement_or_stopped(speed_right, speed_left))
+                        {
+                            speed_right += cmd.speed_qpps;
+                            speed_left -= cmd.speed_qpps;
+                        }
+                        else
+                        {
+                            speed_right -= cmd.speed_qpps;
+                            speed_left += cmd.speed_qpps;
+                        }
                         break;
 
                     case a4wd2::control_command::RIGHT:
-                        controller.write(write_commands::m1_m2_drive_qpps{
-                                -cmd.speed_qpps, cmd.speed_qpps});
+                    {
+                        bool forward =
+                                forward_movement_or_stopped(speed_right, speed_left);
+                        ROS_INFO_STREAM("r: " << speed_right << ", l: " << speed_left
+                                              << "forward: " << forward);
+                        if (forward)
+                        {
+                            speed_right -= cmd.speed_qpps;
+                            speed_left += cmd.speed_qpps;
+                        }
+                        else
+                        {
+                            speed_right += cmd.speed_qpps;
+                            speed_left -= cmd.speed_qpps;
+                        }
+                    }
+                    break;
+
+                    case a4wd2::control_command::STOP:
+                        speed_right = 0;
+                        speed_left = 0;
                         break;
 
                     default:
@@ -127,8 +182,17 @@ int main(int argc, char** argv)
                         controller.write(write_commands::m1_m2_drive_duty{0});
                         break;
                 }
+                if (cmd.cmd == a4wd2::control_command::STOP)
+                {
+                    controller.write(write_commands::m1_m2_drive_duty{0});
+                }
+                else
+                {
+                    controller.write(
+                            write_commands::m1_m2_drive_qpps{speed_right, speed_left});
+                }
 
-                stopTimer.clear();
+                // stopTimer.clear();
             };
 
     std::signal(SIGINT, signal_handler);

@@ -20,7 +20,7 @@ option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
 hunter_add_package(Boost COMPONENTS system)
 hunter_add_package(cxxopts)
-hunter_add_package(MRPT)
+#hunter_add_package(MRPT)
 hunter_add_package(nlohmann_json)
 hunter_add_package(roboclaw)
 hunter_add_package(spdlog)
@@ -64,7 +64,7 @@ if (BUILD_ROS_COMPONENTS)
 
     add_subdirectory(src/sensor_publisher)
     add_subdirectory(src/ros_controller)
-    add_subdirectory(src/visualisation)
+    #add_subdirectory(src/visualisation)
 
     # CPack
     if(CMAKE_CROSSCOMPILING)

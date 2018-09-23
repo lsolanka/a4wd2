@@ -4,7 +4,7 @@
 #include <a4wd2/control_command.h>
 
 static constexpr int QUEUE_SIZE = 100;
-static constexpr int SPEED_QPPS = 10000;
+static constexpr int SPEED_QPPS = 2000;
 
 int main(int argc, char** argv)
 {
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
             case ' ':
                 cmd.speed_qpps = 0;
-                cmd.cmd = a4wd2::control_command::FORWARD;
+                cmd.cmd = a4wd2::control_command::STOP;
                 command_publisher.publish(cmd);
                 break;
 
