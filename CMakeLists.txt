@@ -66,6 +66,8 @@ if (BUILD_ROS_COMPONENTS)
     add_subdirectory(src/ros_controller)
     #add_subdirectory(src/visualisation)
 
+    install(DIRECTORY urdf launch rviz DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
     # CPack
     if(CMAKE_CROSSCOMPILING)
         if("${CMAKE_LIBRARY_ARCHITECTURE}" STREQUAL "arm-linux-gnueabihf")
@@ -75,6 +77,9 @@ if (BUILD_ROS_COMPONENTS)
                 "CMAKE_LIBRARY_ARCHITECTURE is not set or not supported: "
                 "'${CMAKE_LIBRARY_ARCHITECTURE}'")
         endif()
+
+        # Only when cross-compiling for the robot computer
+        add_subdirectory(system)
     endif()
     set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
     set(CPACK_PACKAGE_CONTACT "lsolanka AT gmail.com")
@@ -88,6 +93,5 @@ if (BUILD_ROS_COMPONENTS)
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
         "${CMAKE_CURRENT_SOURCE_DIR}/deb/postinst;${CMAKE_CURRENT_SOURCE_DIR}/deb/prerm")
 
-    add_subdirectory(system)
     include(CPack)
 endif()

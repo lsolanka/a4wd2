@@ -38,5 +38,11 @@
           machine="chassis-main" required="true" />
 
     <node pkg="a4wd2" name="key_controller" type="key_controller" />
-    <node pkg="a4wd2" name="a4wd2_visualisation" type="a4wd2_visualisation" />
+
+    <!-- rviz visualisation -->
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder $(find a4wd2)/urdf/lynxmotion.urdf" />
+    <node pkg="rviz" name="rviz" type="rviz"
+          args="-d $(find a4wd2)/rviz/lynxmotion.rviz" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 </launch>

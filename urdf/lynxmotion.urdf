@@ -1,0 +1,146 @@
+<robot name="lynxmotion_robot">
+	<material name="wheel">
+    	<color rgba="0.05 0.05 0.05 1.0"/>
+  	</material>
+  
+ 	<link name="base_link">
+		<visual>
+		    <origin xyz="-0.025 0 0.11" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.25 0.28 0.12"/>
+			</geometry>
+			<material name="Cyan1">
+	       		<color rgba="0.1 0.1 .1 1.0"/>
+	     	</material>
+		</visual>	
+	</link>
+	
+ 	<link name="laser_link">
+		<visual>
+		    <origin xyz="0 0 0.19" rpy="0 0 0"/>
+			<geometry>
+				<cylinder radius="0.035" length="0.04"/>
+			</geometry>
+			<material name="Black1">
+	       		<color rgba="0.2 0.2 0.2 1.0"/>
+	     	</material>
+		</visual>	
+	</link>
+
+    <joint name="base_laser" type="fixed">
+        <parent link="base_link" />
+        <child link="laser_link" />
+    </joint>
+
+	<link name="sonar_fl_link">
+		<visual>
+		    <origin xyz="0.11 0.09 0.12" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.02 0.05 0.02"/>
+			</geometry>
+			<material name="Red">
+	       		<color rgba="1 0 0 1.0"/>
+	     	</material>
+		</visual>	
+	</link>
+
+    <joint name="base_sonar_fl" type="fixed">
+        <parent link="base_link" />
+        <child link="sonar_fl_link" />
+    </joint>
+
+	<link name="sonar_fr_link">
+		<visual>
+		    <origin xyz="0.11 -0.09 0.12" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.02 0.05 0.02"/>
+			</geometry>
+			<material name="Red">
+	       		<color rgba="1 0 0 1.0"/>
+	     	</material>
+		</visual>	
+	</link>
+
+    <joint name="base_sonar_fr" type="fixed">
+        <parent link="base_link" />
+        <child link="sonar_fr_link" />
+    </joint>
+
+	<link name="rpi_link">
+		<visual>
+		    <origin xyz="-0.13 0.09 0.18" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.14 0.08 0.02"/>
+			</geometry>
+			<material name="Green1">
+	       		<color rgba="0 1 0 1.0"/>
+	     	</material>
+		</visual>	
+	</link>
+
+    <joint name="base_rpi" type="fixed">
+        <parent link="base_link" />
+        <child link="rpi_link" />
+    </joint>
+
+	<link name="wheel_fl_link">
+		<visual>
+		    <origin xyz="0.1 0.14 0.05" rpy="1.570796 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+            <material name="wheel"/>
+		</visual>	
+	</link>
+
+	<link name="wheel_fr_link">
+		<visual>
+		    <origin xyz="0.1 -0.14 0.05" rpy="1.570796 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+            <material name="wheel"/>
+		</visual>	
+	</link>
+
+	<link name="wheel_rl_link">
+		<visual>
+		    <origin xyz="-0.1 0.14 0.05" rpy="1.570796 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+            <material name="wheel"/>
+		</visual>	
+	</link>
+
+	<link name="wheel_rr_link">
+		<visual>
+		    <origin xyz="-0.1 -0.14 0.05" rpy="1.570796 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+            <material name="wheel"/>
+		</visual>	
+	</link>
+
+    <joint name="base_wheel_fl" type="fixed">
+        <parent link="base_link" />
+        <child link="wheel_fl_link" />
+    </joint>
+
+    <joint name="base_wheel_fr" type="fixed">
+        <parent link="base_link" />
+        <child link="wheel_fr_link" />
+    </joint>
+
+    <joint name="base_wheel_rl" type="fixed">
+        <parent link="base_link" />
+        <child link="wheel_rl_link" />
+    </joint>
+
+    <joint name="base_wheel_rr" type="fixed">
+        <parent link="base_link" />
+        <child link="wheel_rr_link" />
+    </joint>
+
+</robot>
