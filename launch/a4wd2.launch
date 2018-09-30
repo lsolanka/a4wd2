@@ -34,7 +34,7 @@
           machine="chassis-main" required="true" />
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="laser_transform"
-          args="0 0 0 3.14159265359 0 0 base_link laser"
+          args="0 0 0 0 0 0 base_link laser"
           machine="chassis-main" required="true" />
 
     <node pkg="a4wd2" name="key_controller" type="key_controller" />
