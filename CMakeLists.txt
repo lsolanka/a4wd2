@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel14.tar.gz"
-    SHA1 "83621a747b819f47effc8684e17d2a1415355cac"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel18.tar.gz"
+    SHA1 "92f4925f24dbb460df6ca1d5ab831b23da6b040f"
     LOCAL
 )
 
@@ -20,10 +20,11 @@ option(BUILD_ROS_COMPONENTS "Build components requiring ROS" OFF)
 
 hunter_add_package(Boost COMPONENTS system)
 hunter_add_package(cxxopts)
-#hunter_add_package(MRPT)
+hunter_add_package(MRPT)
 hunter_add_package(nlohmann_json)
 hunter_add_package(roboclaw)
 hunter_add_package(spdlog)
+hunter_add_package(Eigen)
 
 if (BUILD_ROS_COMPONENTS)
     hunter_add_package(ros_comm)
@@ -44,6 +45,9 @@ endif()
 
 find_package(Boost CONFIG REQUIRED COMPONENTS system)
 find_package(cxxopts CONFIG REQUIRED)
+find_package(Eigen3 CONFIG REQUIRED)
+find_package(MRPT CONFIG REQUIRED)
+find_package(roboclaw CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
 add_subdirectory(src/config)
@@ -64,9 +68,10 @@ if (BUILD_ROS_COMPONENTS)
 
     add_subdirectory(src/sensor_publisher)
     add_subdirectory(src/ros_controller)
+    add_subdirectory(src/reactive_controller)
     #add_subdirectory(src/visualisation)
 
-    install(DIRECTORY urdf launch rviz DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+    install(DIRECTORY config urdf launch rviz DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
     # CPack
     if(CMAKE_CROSSCOMPILING)

@@ -3,13 +3,13 @@
 #include <csignal>
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include <boost/asio/serial_port.hpp>
 #include <boost/function.hpp>
 #include <cxxopts.hpp>
 
 #include <a4wd2/config.h>
+#include <a4wd2/motor_controller/init.h>
 #include <a4wd2/control_command.h>
 
 #include <roboclaw/io/io.hpp>
@@ -31,8 +31,6 @@ static constexpr int QUEUE_SIZE = 100;
 
 void signal_handler(int signal);
 void interruption_point(serial_controller& controller);
-
-void read_info(roboclaw::io::serial_controller& controller);
 
 class StopTimer
 {
@@ -99,7 +97,7 @@ int main(int argc, char** argv)
 
     std::string port_name = options_result["port"].as<std::string>();
     roboclaw::io::serial_controller controller(port_name, 0x80);
-    read_info(controller);
+    a4wd2::motor_controller::init(controller);
 
     // StopTimer stopTimer(nh, 500ms, controller);
     int32_t speed_left = 0;
@@ -222,33 +220,3 @@ void signal_handler(int signal)
         interruption_requested = true;
     }
 }
-
-void read_info(roboclaw::io::serial_controller& controller)
-{
-    ROS_INFO_STREAM(log_prefix << "Firmware version: "
-                               << controller.read<read_commands::firmware_version>());
-
-    ROS_INFO_STREAM(log_prefix << "Main battery voltage: "
-                               << controller.read<read_commands::main_battery_voltage>());
-    ROS_INFO_STREAM(
-            log_prefix << "Logic battery voltage: "
-                       << controller.read<read_commands::logic_battery_voltage>());
-
-    controller.write(write_commands::m1_encoder_mode{true, false});
-    controller.write(write_commands::m2_encoder_mode{true, false});
-
-    ROS_INFO_STREAM(
-            log_prefix << "Encoder mode: "
-                       << get_string(controller.read<read_commands::encoder_mode>()));
-
-    controller.write(write_commands::m1_velocity_pid{1.f, 0.5f, 0.25f, 42000});
-    controller.write(write_commands::m2_velocity_pid{1.f, 0.5f, 0.25f, 42000});
-
-    ROS_INFO_STREAM(
-            log_prefix << "M1 velocity PID: "
-                       << get_string(controller.read<read_commands::m1_velocity_pid>()));
-    ROS_INFO_STREAM(
-            log_prefix << "M2 velocity PID: "
-                       << get_string(controller.read<read_commands::m2_velocity_pid>()));
-}
-

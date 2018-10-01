@@ -1,5 +1,3 @@
-find_package(roboclaw CONFIG REQUIRED)
-
 add_executable(ros_controller ros_controller.cpp)
 target_link_libraries(ros_controller a4wd2_config roboclaw::roboclaw cxxopts::cxxopts
                                      ${catkin_LIBRARIES})

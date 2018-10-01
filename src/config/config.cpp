@@ -6,6 +6,7 @@ namespace a4wd2::config
 bool setup_verbosity(const cxxopts::ParseResult& options)
 {
     auto lg_roboclaw = spdlog::stdout_color_mt("roboclaw");
+    auto lg_main = spdlog::stdout_color_mt("a4wd2_main");
     spdlog::set_async_mode(8192);
 
     if (options.count("verbosity"))

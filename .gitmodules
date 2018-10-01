@@ -1,0 +1,4 @@
+[submodule "submodules/roboclaw"]
+	path = submodules/roboclaw
+	url = file:///home/lukas/work/a4wd2/roboclaw
+	branch = fix-inline

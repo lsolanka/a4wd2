@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(dirname)/a4wd2.launch" />
+
+    <node name="ros_controller"
+        pkg="a4wd2"
+        type="ros_controller"
+        machine="chassis-main"
+        required="true"
+        args="-v debug" />
+
+</launch>

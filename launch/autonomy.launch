@@ -1,0 +1,12 @@
+<launch>
+
+    <include file="$(dirname)/a4wd2.launch" />
+
+    <node name="reactive_controller"
+        pkg="a4wd2"
+        type="reactive_controller"
+        machine="chassis-main"
+        required="true"
+        args="-v debug -c $(find a4wd2)/config/reactive_controller_config.ini" />
+
+</launch>
