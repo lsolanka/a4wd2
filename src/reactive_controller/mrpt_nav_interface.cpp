@@ -70,13 +70,8 @@ bool mrpt_nav_interface::changeSpeeds(const mrpt::kinematics::CVehicleVelCmd& ve
     m_current_speed.r = diff_cmd->lin_vel * si::meters_per_second +
                         0.5 * diff_cmd->ang_vel / si::seconds * m_props.axle_length;
 
-    int32_t left_qpps = ((double)m_props.quadrature_pulses_per_rotation *
-                         m_current_speed.l / 2.0 / PI / m_props.wheel_radius) *
-                        si::seconds;
-
-    int32_t right_qpps = ((double)m_props.quadrature_pulses_per_rotation *
-                          m_current_speed.r / 2.0 / PI / m_props.wheel_radius) *
-                         si::seconds;
+    int32_t left_qpps = to_qpps(m_current_speed.l);
+    int32_t right_qpps = to_qpps(m_current_speed.r);
 
     m_logger->debug("sending qpps command: m1: {}, m2: {}", right_qpps, left_qpps);
     m_controller.write(write_commands::m1_m2_drive_qpps{right_qpps, left_qpps});
@@ -140,10 +135,24 @@ mrpt::kinematics::CVehicleVelCmd::Ptr mrpt_nav_interface::getAlignCmd(
 
     auto cmd = mrpt::make_aligned_shared<CVehicleVelCmd_DiffDriven>();
     cmd->lin_vel = 0;
-    cmd->ang_vel = std::min(5 * std::abs(relative_heading_radians), pi<double>() / 4.);
+    cmd->ang_vel = std::min(10 * std::abs(relative_heading_radians), 0.4 * pi<double>());
     cmd->ang_vel *= relative_heading_radians > 0 ? 1 : -1;
 
     return cmd;
+}
+
+void mrpt_nav_interface::sendApparentCollisionEvent()
+{
+    m_logger->warn("Apparent collision event. Reversing!!");
+
+    m_current_speed.l *= -1;
+    m_current_speed.r *= -1;
+
+    int32_t left_qpps = to_qpps(m_current_speed.l);
+    int32_t right_qpps = to_qpps(m_current_speed.r);
+
+    m_logger->debug("sending qpps command: m1: {}, m2: {}", right_qpps, left_qpps);
+    m_controller.write(write_commands::m1_m2_drive_qpps{right_qpps, left_qpps});
 }
 
 }  // namespace a4wd2

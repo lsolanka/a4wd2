@@ -10,19 +10,19 @@
 #include <roboclaw/io/read_commands.hpp>
 #include <roboclaw/io/write_commands.hpp>
 
+#include <geometry_msgs/PoseStamped.h>
 #include <ros/ros.h>
-#include <geometry_msgs/Pose2D.h>
 
 #include <a4wd2/config.h>
 #include <a4wd2/motor_controller/init.h>
 
 #include <mrpt/config/CConfigFile.h>
 #include <mrpt/core/initializer.h>
+#include <mrpt/math/CPolygon.h>
 #include <mrpt/nav.h>
 #include <mrpt/nav/reactive/CReactiveNavigationSystem.h>
 #include <mrpt/nav/reactive/TWaypoint.h>
 #include <mrpt/serialization/CSerializable.h>
-#include <mrpt/math/CPolygon.h>
 
 #include "laser_scan_provider.h"
 #include "mrpt_nav_interface.h"
@@ -108,7 +108,7 @@ void register_mrpt_classes()
     registerClass(CLASS_ID(CMultiObjectiveMotionOptimizerBase));
     registerClass(CLASS_ID(CMultiObjMotionOpt_Scalarization));
 
-	registerClass(CLASS_ID(CPolygon));
+    registerClass(CLASS_ID(CPolygon));
 }
 
 int main(int argc, char** argv)
@@ -170,14 +170,18 @@ int main(int argc, char** argv)
     nav_system.initialize();
     nav_timer timer(nh, 250ms, nav_system, controller);
 
-    boost::function<void(const geometry_msgs::Pose2DConstPtr&)> new_pose_cb =
-            [&](const geometry_msgs::Pose2DConstPtr& pose)
-    {
-        TWaypointSequence waypoints;
-        waypoints.waypoints = {TWaypoint(pose->x, pose->y, 0.1, false, pose->theta)};
-        nav_system.navigateWaypoints(waypoints);
-    };
-    auto goal_server = nh.subscribe("/goal", 10, new_pose_cb);
+    boost::function<void(const geometry_msgs::PoseStampedConstPtr&)> new_pose_cb =
+            [&](const geometry_msgs::PoseStampedConstPtr& pose) {
+                auto& ros_q = pose->pose.orientation;
+                Eigen::Quaternionf q(ros_q.w, ros_q.x, ros_q.y, ros_q.z);
+                float theta = q.toRotationMatrix().eulerAngles(0, 1, 2)[2];  // get yaw
+
+                TWaypointSequence waypoints;
+                waypoints.waypoints = {TWaypoint(
+                        pose->pose.position.x, pose->pose.position.y, 0.1, false, theta)};
+                nav_system.navigateWaypoints(waypoints);
+            };
+    auto goal_server = nh.subscribe("/move_base_simple/goal", 10, new_pose_cb);
 
     ros::spin();
 }

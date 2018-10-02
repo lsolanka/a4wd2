@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include <boost/math/constants/constants.hpp>
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/angular_velocity.hpp>
 #include <boost/units/systems/si/io.hpp>
@@ -83,7 +84,7 @@ public:
     // virtual void sendNewWaypointTargetEvent(int waypoint_index);
     // virtual void sendNavigationEndDueToErrorEvent();
     // virtual void sendWaySeemsBlockedEvent();
-    // virtual void sendApparentCollisionEvent();
+    void sendApparentCollisionEvent() override;
     // virtual void sendCannotGetCloserToBlockedTargetEvent();
 
     // virtual double getNavigationTime();
@@ -105,6 +106,15 @@ private:
     const odometry_provider& m_odometry_provider;
 
     std::shared_ptr<spdlog::logger> m_logger;
+
+    int32_t to_qpps(const boost::units::quantity<si::velocity>& v)
+    {
+        constexpr double PI = boost::math::constants::pi<double>();
+
+        return ((double)m_props.quadrature_pulses_per_rotation * v / 2.0 / PI /
+                m_props.wheel_radius) *
+               si::seconds;
+    }
 };
 
 }  // namespace a4wd2
