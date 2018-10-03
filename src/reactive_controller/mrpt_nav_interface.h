@@ -1,6 +1,5 @@
 #pragma once
 
-#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -107,8 +106,6 @@ private:
     const odometry_provider& m_odometry_provider;
 
     bool m_navigating = false;
-    bool m_reversing = false;
-    std::chrono::steady_clock::time_point m_reverse_start_time;
 
     std::shared_ptr<spdlog::logger> m_logger;
 

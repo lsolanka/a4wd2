@@ -2,8 +2,11 @@
 #include <chrono>
 #include <csignal>
 #include <iostream>
+#include <random>
 #include <string>
 
+#include <spdlog/spdlog.h>
+#include <boost/math/constants/constants.hpp>
 #include <cxxopts.hpp>
 
 #include <roboclaw/io/io.hpp>
@@ -39,20 +42,62 @@ using mrpt::nav::TWaypointSequence;
 
 namespace write_commands = roboclaw::io::write_commands;
 
+static constexpr double PI = boost::math::constants::pi<double>();
+
+std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("reactive_controller");
+
 /** Handling Ctrl-C **/
 volatile std::atomic<bool> g_interruption_requested(false);
 void signal_handler(int signal);
+
+TWaypointSequence get_random_waypoints(const a4wd2::odometry_provider& odometry_provider)
+{
+    logger->debug("Request for new waypoint");
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> position_sample(-3.0, 3.0);
+    std::uniform_real_distribution<> theta_sample(-PI, PI);
+
+    mrpt::math::TPose2D pose;
+    mrpt::math::TTwist2D twist;
+    bool have_odometry = odometry_provider.get_odometry(pose, twist);
+
+    if (have_odometry)
+    {
+        double x, y, theta;
+        x = pose.x + position_sample(gen);
+        y = pose.y + position_sample(gen);
+        theta = theta_sample(gen);
+
+        TWaypointSequence waypoints;
+        waypoints.waypoints = {TWaypoint(x, y, 0.1, false, theta)};
+
+        logger->info("New waypoint list: x: {}, y: {}, theta: {}", x, y, theta);
+        return waypoints;
+    }
+    else
+    {
+        logger->warn("Don't have odometry, returning empty waypoint list");
+        return TWaypointSequence{};
+    }
+}
 
 class nav_timer
 {
 public:
     nav_timer(ros::NodeHandle nh, std::chrono::milliseconds period,
               CReactiveNavigationSystem& nav_system,
-              roboclaw::io::serial_controller& controller)
-        : m_nav_system(nav_system), m_controller(controller)
+              roboclaw::io::serial_controller& controller,
+              a4wd2::odometry_provider& odometry)
+        : m_nav_system(nav_system),
+          m_controller(controller),
+          m_odometry_provider(odometry)
     {
         m_timer = nh.createTimer(ros::Duration(period.count() * 1e-3),
                                  &nav_timer::callback, this);
+        m_goal_publisher =
+                nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", false);
     }
 
     void callback(const ros::TimerEvent&)
@@ -64,7 +109,25 @@ public:
             return;
         }
 
-        m_nav_system.navigationStep();
+        auto current_nav_state = m_nav_system.getCurrentState();
+
+        if (current_nav_state == mrpt::nav::CAbstractNavigator::NAVIGATING)
+        {
+            m_nav_system.navigationStep();
+        }
+        else if (current_nav_state == mrpt::nav::CAbstractNavigator::NAV_ERROR ||
+                 current_nav_state == mrpt::nav::CAbstractNavigator::IDLE)
+        {
+            auto waypoints = get_random_waypoints(m_odometry_provider);
+            m_nav_system.navigateWaypoints(waypoints);
+            m_nav_system.navigationStep();
+
+            geometry_msgs::PoseStamped ros_goal;
+            ros_goal.header.frame_id = "odom";
+            ros_goal.pose.position.x = waypoints.waypoints[0].target.x;
+            ros_goal.pose.position.x = waypoints.waypoints[0].target.y;
+            m_goal_publisher.publish(ros_goal);
+        }
     }
 
     void clear()
@@ -75,8 +138,10 @@ public:
 
 private:
     ros::Timer m_timer;
+    ros::Publisher m_goal_publisher;
     CReactiveNavigationSystem& m_nav_system;
     roboclaw::io::serial_controller& m_controller;
+    a4wd2::odometry_provider& m_odometry_provider;
 };
 
 void register_mrpt_classes()
@@ -168,7 +233,7 @@ int main(int argc, char** argv)
     CReactiveNavigationSystem nav_system(nav_interface);
     nav_system.loadConfigFile(CConfigFile(options_result["config"].as<std::string>()));
     nav_system.initialize();
-    nav_timer timer(nh, 100ms, nav_system, controller);
+    nav_timer timer(nh, 100ms, nav_system, controller, odometry_provider);
 
     boost::function<void(const geometry_msgs::PoseStampedConstPtr&)> new_pose_cb =
             [&](const geometry_msgs::PoseStampedConstPtr& pose) {
