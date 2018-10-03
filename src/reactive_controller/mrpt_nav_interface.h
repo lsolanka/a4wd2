@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -78,8 +79,8 @@ public:
     bool senseObstacles(mrpt::maps::CSimplePointsMap& obstacles,
                         mrpt::system::TTimeStamp& timestamp) override;
 
-    // virtual void sendNavigationStartEvent();
-    // virtual void sendNavigationEndEvent();
+    virtual void sendNavigationStartEvent() override { m_navigating = true; }
+    virtual void sendNavigationEndEvent() override { m_navigating = false; }
     // virtual void sendWaypointReachedEvent(int waypoint_index, bool reached_nSkipped);
     // virtual void sendNewWaypointTargetEvent(int waypoint_index);
     // virtual void sendNavigationEndDueToErrorEvent();
@@ -104,6 +105,10 @@ private:
     robot_properties m_props;
     const laser_scan_provider& m_scan_provider;
     const odometry_provider& m_odometry_provider;
+
+    bool m_navigating = false;
+    bool m_reversing = false;
+    std::chrono::steady_clock::time_point m_reverse_start_time;
 
     std::shared_ptr<spdlog::logger> m_logger;
 

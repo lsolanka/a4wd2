@@ -168,7 +168,7 @@ int main(int argc, char** argv)
     CReactiveNavigationSystem nav_system(nav_interface);
     nav_system.loadConfigFile(CConfigFile(options_result["config"].as<std::string>()));
     nav_system.initialize();
-    nav_timer timer(nh, 250ms, nav_system, controller);
+    nav_timer timer(nh, 100ms, nav_system, controller);
 
     boost::function<void(const geometry_msgs::PoseStampedConstPtr&)> new_pose_cb =
             [&](const geometry_msgs::PoseStampedConstPtr& pose) {

@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cstdint>
 
 #include <fmt/format.h>
@@ -11,6 +12,8 @@
 #include "laser_scan_provider.h"
 #include "mrpt_nav_interface.h"
 #include "odometry_provider.h"
+
+using namespace std::literals::chrono_literals;
 
 namespace read_commands = roboclaw::io::read_commands;
 namespace write_commands = roboclaw::io::write_commands;
@@ -115,15 +118,15 @@ bool mrpt_nav_interface::senseObstacles(mrpt::maps::CSimplePointsMap& obstacles,
     obstacles.loadFromRangeScan(scan);
     timestamp = mrpt::system::now();
 
-    //std::vector<float> xs, ys, zs;
-    //obstacles.getAllPoints(xs, ys, zs);
-    //std::string msg = "[";
-    //for (int i = 0; i < xs.size(); ++i)
+    // std::vector<float> xs, ys, zs;
+    // obstacles.getAllPoints(xs, ys, zs);
+    // std::string msg = "[";
+    // for (int i = 0; i < xs.size(); ++i)
     //{
-    //    msg += fmt::format("x: {}, y: {}, z: {}, \n", xs[i], ys[i], zs[i]); 
+    //    msg += fmt::format("x: {}, y: {}, z: {}, \n", xs[i], ys[i], zs[i]);
     //}
-    //msg += "]";
-    //m_logger->debug("obstacles: {}", msg);
+    // msg += "]";
+    // m_logger->debug("obstacles: {}", msg);
 
     return true;
 }
@@ -143,16 +146,20 @@ mrpt::kinematics::CVehicleVelCmd::Ptr mrpt_nav_interface::getAlignCmd(
 
 void mrpt_nav_interface::sendApparentCollisionEvent()
 {
-    m_logger->warn("Apparent collision event. Reversing!!");
+    if (!m_navigating) return;
 
-    m_current_speed.l *= -1;
-    m_current_speed.r *= -1;
+    m_logger->warn("Apparent collision event. Reversing for 2s!!");
 
-    int32_t left_qpps = to_qpps(m_current_speed.l);
-    int32_t right_qpps = to_qpps(m_current_speed.r);
+    mrpt::kinematics::CVehicleVelCmd_DiffDriven vel_cmd;
+    vel_cmd.ang_vel = 0;
+    vel_cmd.lin_vel = -0.2;  // m/s
+    changeSpeeds(vel_cmd);
 
-    m_logger->debug("sending qpps command: m1: {}, m2: {}", right_qpps, left_qpps);
-    m_controller.write(write_commands::m1_m2_drive_qpps{right_qpps, left_qpps});
+    std::this_thread::sleep_until(std::chrono::steady_clock::now() + 2s);
+
+    vel_cmd.ang_vel = 0;
+    vel_cmd.lin_vel = 0;
+    changeSpeeds(vel_cmd);
 }
 
 }  // namespace a4wd2
