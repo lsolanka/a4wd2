@@ -1,6 +1,7 @@
 #include <atomic>
 #include <chrono>
 #include <csignal>
+#include <cmath>
 #include <iostream>
 #include <random>
 #include <string>
@@ -56,7 +57,7 @@ TWaypointSequence get_random_waypoints(const a4wd2::odometry_provider& odometry_
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> position_sample(-3.0, 3.0);
+    std::uniform_real_distribution<> distance_sample(1., 3.0);
     std::uniform_real_distribution<> theta_sample(-PI, PI);
 
     mrpt::math::TPose2D pose;
@@ -65,14 +66,17 @@ TWaypointSequence get_random_waypoints(const a4wd2::odometry_provider& odometry_
 
     if (have_odometry)
     {
-        double x, y, theta;
-        x = pose.x + position_sample(gen);
-        y = pose.y + position_sample(gen);
-        theta = theta_sample(gen);
+        double theta = theta_sample(gen);
+        double distance = distance_sample(gen);
+
+        double x = pose.x + distance * std::cos(theta);
+        double y = pose.y + distance * std::sin(theta);
 
         TWaypointSequence waypoints;
         waypoints.waypoints = {TWaypoint(x, y, 0.1, false, theta)};
 
+        logger->info("New waypoint distance: {}, theta: {}", distance, theta);
+        logger->info("Current pose: x: {}, y: {}", pose.x, pose.y);
         logger->info("New waypoint list: x: {}, y: {}, theta: {}", x, y, theta);
         return waypoints;
     }
@@ -125,7 +129,14 @@ public:
             geometry_msgs::PoseStamped ros_goal;
             ros_goal.header.frame_id = "odom";
             ros_goal.pose.position.x = waypoints.waypoints[0].target.x;
-            ros_goal.pose.position.x = waypoints.waypoints[0].target.y;
+            ros_goal.pose.position.y = waypoints.waypoints[0].target.y;
+
+            Eigen::Quaternionf q;
+            q = Eigen::AngleAxis<float>(waypoints.waypoints[0].target_heading, Eigen::Vector3f::UnitZ());
+            ros_goal.pose.orientation.x = q.x();
+            ros_goal.pose.orientation.y = q.y();
+            ros_goal.pose.orientation.z = q.z();
+            ros_goal.pose.orientation.w = q.w();
             m_goal_publisher.publish(ros_goal);
         }
     }

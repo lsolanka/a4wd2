@@ -146,20 +146,20 @@ mrpt::kinematics::CVehicleVelCmd::Ptr mrpt_nav_interface::getAlignCmd(
 
 void mrpt_nav_interface::sendApparentCollisionEvent()
 {
-    if (!m_navigating) return;
+    //if (!m_navigating) return;
 
-    m_logger->warn("Apparent collision event. Reversing for 2s!!");
+    m_logger->warn("Apparent collision event!!");
 
-    mrpt::kinematics::CVehicleVelCmd_DiffDriven vel_cmd;
-    vel_cmd.ang_vel = 0;
-    vel_cmd.lin_vel = -0.2;  // m/s
-    changeSpeeds(vel_cmd);
+    //mrpt::kinematics::CVehicleVelCmd_DiffDriven vel_cmd;
+    //vel_cmd.ang_vel = 0;
+    //vel_cmd.lin_vel = -0.2;  // m/s
+    //changeSpeeds(vel_cmd);
 
-    std::this_thread::sleep_until(std::chrono::steady_clock::now() + 2s);
+    //std::this_thread::sleep_until(std::chrono::steady_clock::now() + 2s);
 
-    vel_cmd.ang_vel = 0;
-    vel_cmd.lin_vel = 0;
-    changeSpeeds(vel_cmd);
+    //vel_cmd.ang_vel = 0;
+    //vel_cmd.lin_vel = 0;
+    //changeSpeeds(vel_cmd);
 }
 
 }  // namespace a4wd2

@@ -23,6 +23,9 @@ public:
 
     bool get_odometry(mrpt::math::TPose2D& pose, mrpt::math::TTwist2D& twist) const;
 
+    odometry_provider(const odometry_provider&) = delete;
+    odometry_provider& operator=(const odometry_provider&) = delete;
+
 private:
     ros::NodeHandle m_nh;
     ros::Subscriber m_subscriber;
