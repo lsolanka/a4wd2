@@ -8,4 +8,5 @@
         required="true"
         args="-v debug" />
 
+    <node pkg="a4wd2" name="key_controller" type="key_controller" />
 </launch>

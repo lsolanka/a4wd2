@@ -1,4 +1,6 @@
 <launch>
+    <arg name="run_rviz" />
+
     <machine name="chassis-main"
         address="lynxmotion"
         env-loader="/opt/a4wd2/a4wd2_env.sh"
@@ -31,14 +33,13 @@
           args="0 0 0 0 0 0 base_link laser"
           machine="chassis-main" required="true" />
 
-    <node pkg="a4wd2" name="key_controller" type="key_controller" />
-
     <!-- rviz visualisation -->
     <param name="robot_description"
            command="$(find xacro)/xacro --inorder $(find a4wd2)/urdf/lynxmotion.urdf" />
-    <node pkg="rviz" name="rviz" type="rviz"
-          args="-d $(find a4wd2)/rviz/lynxmotion.rviz" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node if="$(arg run_rviz)"
+          pkg="rviz" name="rviz" type="rviz"
+          args="-d $(find a4wd2)/rviz/lynxmotion.rviz" />
 
     <node pkg="rf2o_laser_odometry" type="rf2o_laser_odometry_node" name="rf2o_laser_odometry"
           machine="chassis-main"

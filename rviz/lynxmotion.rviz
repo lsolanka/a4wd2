@@ -8,7 +8,6 @@ Panels:
         - /Status1
         - /LaserScan1
         - /Odometry1
-        - /Goal1
       Splitter Ratio: 0.5
     Tree Height: 848
   - Class: rviz/Selection
@@ -217,7 +216,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -5.630017280578613
+      Angle: -6.190019130706787
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
