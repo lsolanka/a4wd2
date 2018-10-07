@@ -1,5 +1,9 @@
 <launch>
-    <include file="$(dirname)/a4wd2.launch" />
+    <arg name="run_rviz" default="true" />
+
+    <include file="$(dirname)/a4wd2.launch" >
+        <arg name="run_rviz" value="$(arg run_rviz)" />
+    </include>
 
     <node name="ros_controller"
         pkg="a4wd2"

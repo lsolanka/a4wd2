@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /LaserScan1
         - /Odometry1
+        - /Range1/Status1
       Splitter Ratio: 0.5
     Tree Height: 848
   - Class: rviz/Selection
@@ -192,6 +193,16 @@ Visualization Manager:
       Topic: /move_base_simple/goal
       Unreliable: false
       Value: true
+    - Alpha: 0.5
+      Buffer Length: 2
+      Class: rviz/Range
+      Color: 255; 255; 255
+      Enabled: true
+      Name: Range
+      Queue Size: 100
+      Topic: /sonar_ranger
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -216,7 +227,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -6.190019130706787
+      Angle: -2.370025396347046
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -226,11 +237,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 84.75379180908203
+      Scale: 155.58609008789062
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 0.5405679941177368
-      Y: 2.071431875228882
+      X: -1.0351934432983398
+      Y: -1.7008854150772095
     Saved: ~
 Window Geometry:
   Displays:

@@ -29,8 +29,15 @@
           args="record -o lynxmotion_record_all --lz4 -a"
           machine="chassis-main" required="true" />
 
+    <!-- static transforms for sensors -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="laser_transform"
           args="0 0 0 0 0 0 base_link laser"
+          machine="chassis-main" required="true" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="range_fl_transform"
+          args="0.12 0.1 0 0 0 0 base_link range_fl"
+          machine="chassis-main" required="true" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="range_fr_transform"
+          args="0.12 -0.1 0 0 0 0 base_link range_fr"
           machine="chassis-main" required="true" />
 
     <!-- rviz visualisation -->
