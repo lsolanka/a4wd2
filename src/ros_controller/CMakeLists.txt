@@ -1,6 +1,6 @@
 add_executable(ros_controller ros_controller.cpp)
-target_link_libraries(ros_controller a4wd2_config roboclaw::roboclaw cxxopts::cxxopts
-                                     ${catkin_LIBRARIES})
+target_link_libraries(ros_controller
+    a4wd2_config roboclaw::roboclaw cxxopts::cxxopts ${catkin_LIBRARIES} toolkit)
 add_dependencies(ros_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 if(NOT CMAKE_CROSSCOMPILING)

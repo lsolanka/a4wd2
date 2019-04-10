@@ -6,28 +6,22 @@
 #include <ros/ros.h>
 #include <boost/math/constants/constants.hpp>
 
-#include <roboclaw/io/read_commands.hpp>
-#include <roboclaw/io/write_commands.hpp>
+#include <a4wd2/toolkit/MotorController.h>
+#include <a4wd2/toolkit/odometry_provider.h>
 
 #include "laser_scan_provider.h"
 #include "mrpt_nav_interface.h"
-#include "odometry_provider.h"
 
 using namespace std::literals::chrono_literals;
-
-namespace read_commands = roboclaw::io::read_commands;
-namespace write_commands = roboclaw::io::write_commands;
 using mrpt::kinematics::CVehicleVelCmd_DiffDriven;
-
-static constexpr double PI = boost::math::constants::pi<double>();
 
 namespace a4wd2
 {
 
-mrpt_nav_interface::mrpt_nav_interface(roboclaw::io::serial_controller& controller,
-                                       const robot_properties& props,
-                                       const laser_scan_provider& scan_provider,
-                                       const odometry_provider& odometry_provider)
+mrpt_nav_interface::mrpt_nav_interface(
+        toolkit::MotorController& controller, const robot_properties& props,
+        const laser_scan_provider& scan_provider,
+        const toolkit::odometry_provider& odometry_provider)
     : m_controller{controller},
       m_props(props),
       m_scan_provider(scan_provider),
@@ -68,16 +62,17 @@ bool mrpt_nav_interface::changeSpeeds(const mrpt::kinematics::CVehicleVelCmd& ve
         return false;
     }
 
-    m_current_speed.l = diff_cmd->lin_vel * si::meters_per_second -
+    auto speed_left = diff_cmd->lin_vel * si::meters_per_second -
                         0.5 * diff_cmd->ang_vel / si::seconds * m_props.axle_length;
-    m_current_speed.r = diff_cmd->lin_vel * si::meters_per_second +
+    auto speed_right = diff_cmd->lin_vel * si::meters_per_second +
                         0.5 * diff_cmd->ang_vel / si::seconds * m_props.axle_length;
 
-    int32_t left_qpps = to_qpps(m_current_speed.l);
-    int32_t right_qpps = to_qpps(m_current_speed.r);
+    int32_t left_qpps = to_qpps(speed_left);
+    int32_t right_qpps = to_qpps(speed_right);
 
     m_logger->debug("sending qpps command: m1: {}, m2: {}", right_qpps, left_qpps);
-    m_controller.write(write_commands::m1_m2_drive_qpps{right_qpps, left_qpps});
+    m_controller.set_target_qpps_left(left_qpps);
+    m_controller.set_target_qpps_right(right_qpps);
 
     return true;
 }
@@ -86,9 +81,7 @@ bool mrpt_nav_interface::changeSpeedsNOP() { return true; }
 
 bool mrpt_nav_interface::stop(bool isEmergencyStop)
 {
-    m_controller.write(write_commands::m1_m2_drive_duty{0});
-    m_current_speed.l = 0;
-    m_current_speed.r = 0;
+    m_controller.stop();
     return true;
 }
 
@@ -146,20 +139,20 @@ mrpt::kinematics::CVehicleVelCmd::Ptr mrpt_nav_interface::getAlignCmd(
 
 void mrpt_nav_interface::sendApparentCollisionEvent()
 {
-    //if (!m_navigating) return;
+    // if (!m_navigating) return;
 
     m_logger->warn("Apparent collision event!!");
 
-    //mrpt::kinematics::CVehicleVelCmd_DiffDriven vel_cmd;
-    //vel_cmd.ang_vel = 0;
-    //vel_cmd.lin_vel = -0.2;  // m/s
-    //changeSpeeds(vel_cmd);
+    // mrpt::kinematics::CVehicleVelCmd_DiffDriven vel_cmd;
+    // vel_cmd.ang_vel = 0;
+    // vel_cmd.lin_vel = -0.2;  // m/s
+    // changeSpeeds(vel_cmd);
 
-    //std::this_thread::sleep_until(std::chrono::steady_clock::now() + 2s);
+    // std::this_thread::sleep_until(std::chrono::steady_clock::now() + 2s);
 
-    //vel_cmd.ang_vel = 0;
-    //vel_cmd.lin_vel = 0;
-    //changeSpeeds(vel_cmd);
+    // vel_cmd.ang_vel = 0;
+    // vel_cmd.lin_vel = 0;
+    // changeSpeeds(vel_cmd);
 }
 
 }  // namespace a4wd2

@@ -1,13 +1,11 @@
 #include <atomic>
 #include <chrono>
-#include <csignal>
 #include <cmath>
+#include <csignal>
 #include <iostream>
-#include <random>
 #include <string>
 
 #include <spdlog/spdlog.h>
-#include <boost/math/constants/constants.hpp>
 #include <cxxopts.hpp>
 
 #include <roboclaw/io/io.hpp>
@@ -19,6 +17,9 @@
 
 #include <a4wd2/config.h>
 #include <a4wd2/motor_controller/init.h>
+#include <a4wd2/toolkit/odometry_provider.h>
+#include <a4wd2/toolkit/waypoint_generators.h>
+#include <a4wd2/toolkit/MotorController.h>
 
 #include <mrpt/config/CConfigFile.h>
 #include <mrpt/core/initializer.h>
@@ -30,7 +31,6 @@
 
 #include "laser_scan_provider.h"
 #include "mrpt_nav_interface.h"
-#include "odometry_provider.h"
 
 namespace si = a4wd2::si;
 using namespace std::literals::chrono_literals;
@@ -41,9 +41,11 @@ using mrpt::nav::CReactiveNavigationSystem;
 using mrpt::nav::TWaypoint;
 using mrpt::nav::TWaypointSequence;
 
-namespace write_commands = roboclaw::io::write_commands;
+using a4wd2::toolkit::MotorController;
+using a4wd2::toolkit::odometry_provider;
+using a4wd2::toolkit::uniform_random_waypoint_generator;
 
-static constexpr double PI = boost::math::constants::pi<double>();
+namespace write_commands = roboclaw::io::write_commands;
 
 std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("reactive_controller");
 
@@ -51,57 +53,22 @@ std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("reactive_contr
 volatile std::atomic<bool> g_interruption_requested(false);
 void signal_handler(int signal);
 
-TWaypointSequence get_random_waypoints(const a4wd2::odometry_provider& odometry_provider)
-{
-    logger->debug("Request for new waypoint");
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> distance_sample(1., 3.0);
-    std::uniform_real_distribution<> theta_sample(-PI, PI);
-
-    mrpt::math::TPose2D pose;
-    mrpt::math::TTwist2D twist;
-    bool have_odometry = odometry_provider.get_odometry(pose, twist);
-
-    if (have_odometry)
-    {
-        double theta = theta_sample(gen);
-        double distance = distance_sample(gen);
-
-        double x = pose.x + distance * std::cos(theta);
-        double y = pose.y + distance * std::sin(theta);
-
-        TWaypointSequence waypoints;
-        waypoints.waypoints = {TWaypoint(x, y, 0.1, false, theta)};
-
-        logger->info("New waypoint distance: {}, theta: {}", distance, theta);
-        logger->info("Current pose: x: {}, y: {}", pose.x, pose.y);
-        logger->info("New waypoint list: x: {}, y: {}, theta: {}", x, y, theta);
-        return waypoints;
-    }
-    else
-    {
-        logger->warn("Don't have odometry, returning empty waypoint list");
-        return TWaypointSequence{};
-    }
-}
-
 class nav_timer
 {
 public:
     nav_timer(ros::NodeHandle nh, std::chrono::milliseconds period,
               CReactiveNavigationSystem& nav_system,
-              roboclaw::io::serial_controller& controller,
-              a4wd2::odometry_provider& odometry)
+              roboclaw::io::serial_controller& controller, odometry_provider& odometry,
+              std::shared_ptr<spdlog::logger> logger)
         : m_nav_system(nav_system),
           m_controller(controller),
-          m_odometry_provider(odometry)
+          m_odometry_provider(odometry),
+          m_waypoint_generator(logger)
     {
         m_timer = nh.createTimer(ros::Duration(period.count() * 1e-3),
                                  &nav_timer::callback, this);
         m_goal_publisher =
-                nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", false);
+                nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", true);
     }
 
     void callback(const ros::TimerEvent&)
@@ -122,7 +89,7 @@ public:
         else if (current_nav_state == mrpt::nav::CAbstractNavigator::NAV_ERROR ||
                  current_nav_state == mrpt::nav::CAbstractNavigator::IDLE)
         {
-            auto waypoints = get_random_waypoints(m_odometry_provider);
+            auto waypoints = m_waypoint_generator(m_odometry_provider);
             m_nav_system.navigateWaypoints(waypoints);
             m_nav_system.navigationStep();
 
@@ -132,7 +99,8 @@ public:
             ros_goal.pose.position.y = waypoints.waypoints[0].target.y;
 
             Eigen::Quaternionf q;
-            q = Eigen::AngleAxis<float>(waypoints.waypoints[0].target_heading, Eigen::Vector3f::UnitZ());
+            q = Eigen::AngleAxis<float>(waypoints.waypoints[0].target_heading,
+                                        Eigen::Vector3f::UnitZ());
             ros_goal.pose.orientation.x = q.x();
             ros_goal.pose.orientation.y = q.y();
             ros_goal.pose.orientation.z = q.z();
@@ -152,7 +120,9 @@ private:
     ros::Publisher m_goal_publisher;
     CReactiveNavigationSystem& m_nav_system;
     roboclaw::io::serial_controller& m_controller;
-    a4wd2::odometry_provider& m_odometry_provider;
+    odometry_provider& m_odometry_provider;
+
+    uniform_random_waypoint_generator m_waypoint_generator;
 };
 
 void register_mrpt_classes()
@@ -238,13 +208,15 @@ int main(int argc, char** argv)
     robot_props.quadrature_pulses_per_rotation = 12000;
 
     a4wd2::laser_scan_provider scan_provider(nh, "/scan");
-    a4wd2::odometry_provider odometry_provider(nh, "/odom_rf2o");
-    a4wd2::mrpt_nav_interface nav_interface(controller, robot_props, scan_provider,
+    odometry_provider odometry_provider(nh, "/odom_rf2o");
+    MotorController motor_controller(nh, 100ms, controller,
+                                     MotorController::Parameters{});
+    a4wd2::mrpt_nav_interface nav_interface(motor_controller, robot_props, scan_provider,
                                             odometry_provider);
     CReactiveNavigationSystem nav_system(nav_interface);
     nav_system.loadConfigFile(CConfigFile(options_result["config"].as<std::string>()));
     nav_system.initialize();
-    nav_timer timer(nh, 100ms, nav_system, controller, odometry_provider);
+    nav_timer timer(nh, 100ms, nav_system, controller, odometry_provider, logger);
 
     boost::function<void(const geometry_msgs::PoseStampedConstPtr&)> new_pose_cb =
             [&](const geometry_msgs::PoseStampedConstPtr& pose) {

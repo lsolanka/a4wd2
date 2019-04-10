@@ -20,8 +20,13 @@
 namespace a4wd2
 {
 
-class laser_scan_provider;
+namespace toolkit
+{
 class odometry_provider;
+class MotorController;
+}
+
+class laser_scan_provider;
 
 namespace si
 {
@@ -51,10 +56,10 @@ struct robot_properties
 class mrpt_nav_interface : public mrpt::nav::CRobot2NavInterface
 {
 public:
-    mrpt_nav_interface(roboclaw::io::serial_controller& controller,
+    mrpt_nav_interface(toolkit::MotorController& controller,
                        const robot_properties& props,
                        const laser_scan_provider& scan_provider,
-                       const odometry_provider& odometry_provider);
+                       const toolkit::odometry_provider& odometry_provider);
 
     bool getCurrentPoseAndSpeeds(mrpt::math::TPose2D& curPose,
                                  mrpt::math::TTwist2D& curVelGlobal,
@@ -99,11 +104,10 @@ private:
         motor_speed() : l(0 * si::meters_per_second), r(0 * si::meters_per_second){};
     };
 
-    roboclaw::io::serial_controller& m_controller;
-    motor_speed m_current_speed;
+    toolkit::MotorController& m_controller;
     robot_properties m_props;
     const laser_scan_provider& m_scan_provider;
-    const odometry_provider& m_odometry_provider;
+    const toolkit::odometry_provider& m_odometry_provider;
 
     bool m_navigating = false;
 

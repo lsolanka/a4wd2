@@ -1,8 +1,11 @@
-#include "odometry_provider.h"
+#include <a4wd2/toolkit/odometry_provider.h>
 
 #include <Eigen/Geometry>
 
 namespace a4wd2
+{
+
+namespace toolkit
 {
 
 odometry_provider::odometry_provider(ros::NodeHandle nh, const std::string& topic_name)
@@ -40,5 +43,7 @@ bool odometry_provider::get_odometry(mrpt::math::TPose2D& pose,
 
     return true;
 }
+
+}  // namespace toolkit
 
 }  // namespace a4wd2

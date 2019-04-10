@@ -9,20 +9,23 @@
 #include <cxxopts.hpp>
 
 #include <a4wd2/config.h>
-#include <a4wd2/motor_controller/init.h>
 #include <a4wd2/control_command.h>
+#include <a4wd2/motor_controller/init.h>
+#include <a4wd2/toolkit/MotorController.h>
 
 #include <roboclaw/io/io.hpp>
 #include <roboclaw/io/read_commands.hpp>
 #include <roboclaw/io/write_commands.hpp>
 
 #include <ros/ros.h>
+#include <std_msgs/Int64.h>
 
 using namespace std::literals::chrono_literals;
 
 namespace read_commands = roboclaw::io::read_commands;
 namespace write_commands = roboclaw::io::write_commands;
 using roboclaw::io::serial_controller;
+using a4wd2::toolkit::MotorController;
 
 volatile std::atomic<bool> interruption_requested(false);
 
@@ -98,13 +101,17 @@ int main(int argc, char** argv)
     std::string port_name = options_result["port"].as<std::string>();
     roboclaw::io::serial_controller controller(port_name, 0x80);
     a4wd2::motor_controller::init(controller);
-
     // StopTimer stopTimer(nh, 500ms, controller);
     int32_t speed_left = 0;
     int32_t speed_right = 0;
+    MotorController::Parameters controller_params;
+    controller_params.pid_left.max_qpps = 24000;
+
+    MotorController motor_controller(nh, 100ms, controller, controller_params);
 
     boost::function<void(const a4wd2::control_command&)> callback =
-            [&controller, &speed_left, &speed_right](const a4wd2::control_command& cmd) {
+            [&motor_controller, &speed_left,
+             &speed_right](const a4wd2::control_command& cmd) {
                 switch (cmd.cmd)
                 {
                     case a4wd2::control_command::FORWARD:
@@ -177,17 +184,17 @@ int main(int argc, char** argv)
                     default:
                         ROS_ERROR_STREAM(log_prefix << "Unknown control command: "
                                                     << cmd.cmd << "Stopping the rover.");
-                        controller.write(write_commands::m1_m2_drive_duty{0});
+                        motor_controller.stop();
                         break;
                 }
                 if (cmd.cmd == a4wd2::control_command::STOP)
                 {
-                    controller.write(write_commands::m1_m2_drive_duty{0});
+                    motor_controller.stop();
                 }
                 else
                 {
-                    controller.write(
-                            write_commands::m1_m2_drive_qpps{speed_right, speed_left});
+                    motor_controller.set_target_qpps_left(speed_left);
+                    motor_controller.set_target_qpps_right(speed_right);
                 }
 
                 // stopTimer.clear();

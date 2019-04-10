@@ -16,6 +16,9 @@
 namespace a4wd2
 {
 
+namespace toolkit
+{
+
 class odometry_provider
 {
 public:
@@ -37,5 +40,7 @@ private:
 
     void callback(const nav_msgs::OdometryConstPtr& msg) { m_odometry = *msg; }
 };
+
+}  // namespace toolkit
 
 }  // namespace a4wd2

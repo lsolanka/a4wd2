@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel18.tar.gz"
-    SHA1 "92f4925f24dbb460df6ca1d5ab831b23da6b040f"
+    URL "https://github.com/lsolanka/hunter/archive/v0.22.4-rosdevel19.tar.gz"
+    SHA1 "06122fac73b2ee45aeff597e49eaaf3cfebdc330"
     LOCAL
 )
 
@@ -69,6 +69,7 @@ if (BUILD_ROS_COMPONENTS)
     add_subdirectory(src/sensor_publisher)
     add_subdirectory(src/ros_controller)
     add_subdirectory(src/reactive_controller)
+    add_subdirectory(src/toolkit)
     #add_subdirectory(src/visualisation)
 
     install(DIRECTORY config urdf launch rviz DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
